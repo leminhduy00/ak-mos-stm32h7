@@ -42,7 +42,9 @@
 #include "task_life.h"
 
 #include "led.h"
+#if defined (USE_EEPROM_OPTION)
 #include "eeprom.h"
+#endif
 #include "Adafruit_ssd1306syp.h"
 #include "flash.h"
 
@@ -387,6 +389,7 @@ int32_t shell_epi(uint8_t* argv) {
 }
 
 int32_t shell_eps(uint8_t* argv) {
+#if defined(USE_EEPROM_OPTION)
 	uint8_t val = 0;
 
 	switch (*(argv + 4)) {
@@ -437,6 +440,11 @@ int32_t shell_eps(uint8_t* argv) {
 	}
 
 	return 0;
+#else
+	(void)argv;
+	LOGIN_PRINT("eeprom is disabled in current build profile\n");
+	return 0;
+#endif
 }
 
 int32_t shell_flash(uint8_t* argv) {

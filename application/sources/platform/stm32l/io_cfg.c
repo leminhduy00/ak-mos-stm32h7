@@ -15,7 +15,9 @@
 
 #include "app_dbg.h"
 
+#if defined(USE_EEPROM_OPTION)
 #include "eeprom.h"
+#endif
 
 #include "system.h"
 
@@ -497,7 +499,7 @@ void ssd1306_res_digital_write_high() {
 int ssd1306_res_digital_read() {
 	return (int)(GPIO_ReadInputDataBit(SSD1306_RES_IO_PORT, SSD1306_RES_IO_PIN));
 }
-
+#if defined(USE_EEPROM_OPTION)
 /******************************************************************************
 * eeprom function
 * when using function DATA_EEPROM_ProgramByte,
@@ -581,6 +583,7 @@ uint8_t io_eeprom_erase(uint32_t address, uint32_t len) {
 
 	return EEPROM_DRIVER_OK;
 }
+#endif
 
 void internal_flash_unlock() {
 	FLASH_Unlock();

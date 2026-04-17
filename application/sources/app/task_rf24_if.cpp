@@ -16,8 +16,6 @@
 
 #include "fifo.h"
 
-#include "eeprom.h"
-
 #if defined(IF_NETWORK_NRF24_EN)
 #include "hal_nrf.h"
 #include "nrf_data.h"
