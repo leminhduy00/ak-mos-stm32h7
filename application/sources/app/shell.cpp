@@ -31,7 +31,9 @@
 #include "app_flash.h"
 #include "app_eeprom.h"
 #include "app_non_clear_ram.h"
+#if defined (TASK_MBMASTER_EN)
 #include "app_modbus_pull.h"
+#endif
 
 #include "task_shell.h"
 #include "task_list.h"
@@ -909,6 +911,7 @@ int32_t shell_buzzer(uint8_t* argv) {
 }
 
 int32_t shell_modbus(uint8_t* argv) {
+#if defined (TASK_MBMASTER_EN)
 	switch (*(argv + 7)) {
 	case 'r':
 		LOGIN_PRINT("Modbus polling all register: \n");
@@ -935,4 +938,9 @@ int32_t shell_modbus(uint8_t* argv) {
 	}
 
 	return 0;
+#else
+	(void)argv;
+	LOGIN_PRINT("modbus is disabled in current build profile\n");
+	return 0;
+#endif
 }

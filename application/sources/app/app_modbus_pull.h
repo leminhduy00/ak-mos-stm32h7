@@ -1,6 +1,7 @@
 #ifndef __APP_MODBUS_PULL_H
 #define __APP_MODBUS_PULL_H
 
+#if defined (TASK_MBMASTER_EN)
 #include <stdint.h>
 
 #include "port.h"
@@ -90,5 +91,6 @@ extern MB_DeviceStruct_t MB_LHIO404_IO_Device; /* https://epcb.vn/products/relay
 
 /* Function prototypes -------------------------------------------------------*/
 extern void updateDataModbusDevice(MB_DeviceStruct_t *mbDevice);
+#endif
 
 #endif

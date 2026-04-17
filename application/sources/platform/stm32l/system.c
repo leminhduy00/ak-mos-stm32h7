@@ -419,13 +419,13 @@ void uart1_irq() {
 
 	task_exit_interrupt();
 }
-
+#if defined (TASK_ZIGBEE_EN)
 void uart2_irq() {
 	task_entry_interrupt();
 	sys_irq_uart2();
 	task_exit_interrupt();
 }
-
+#endif
 void exti_line1_irq() {
 	task_entry_interrupt();
 
