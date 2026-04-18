@@ -3,13 +3,6 @@
 
 #include "message.h"
 
-#if defined(TASK_ZIGBEE_EN)
-#include "zb_zcl.h"
-#include "zb_znp.h"
-
-extern zb_znp zigbee_network;
-#endif
-
 #define ATTRID_XIAOMI_SENS_STATUS_REPORT	0xFF01
 
 /*

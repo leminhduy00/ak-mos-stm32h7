@@ -20,10 +20,6 @@ const task_t app_task_table[] = {
 	{AC_TASK_DBG_ID				,	TASK_PRI_LEVEL_4	,	task_dbg			},
 	{AC_TASK_DISPLAY_ID			,	TASK_PRI_LEVEL_4	,	task_display		},
 
-	#if defined(TASK_ZIGBEE_EN)
-	{AC_TASK_ZIGBEE_ID			,	TASK_PRI_LEVEL_4	,	task_zigbee			},
-	#endif
-
 	/*************************************************************************/
 	/* RF24 NETWORK TASK */
 	/*************************************************************************/
@@ -49,7 +45,6 @@ const task_t app_task_table[] = {
 };
 
 const task_polling_t app_task_polling_table[] = {
-	{AC_TASK_POLLING_ZIGBEE_ID	,	AK_ENABLE	,	task_polling_zigbee			},
 	{AC_TASK_POLLING_CONSOLE_ID	,	AK_ENABLE	,	task_polling_console		},
 	{AK_TASK_POLLING_EOT_ID		,	AK_DISABLE	,	(pf_task_polling)0			},
 };

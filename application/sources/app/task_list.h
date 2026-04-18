@@ -27,10 +27,6 @@ enum {
 	AC_TASK_DBG_ID,
 	AC_TASK_DISPLAY_ID,
 
-#if defined(TASK_ZIGBEE_EN)
-	AC_TASK_ZIGBEE_ID,
-#endif
-
 	/* NRF24 NETWORKS */
 #if defined (IF_NETWORK_NRF24_EN)
 	AC_RF24_PHY_ID,
@@ -56,7 +52,6 @@ enum {
 /*****************************************************************************/
 enum {
 	/* APP TASKS */
-	AC_TASK_POLLING_ZIGBEE_ID,
 	AC_TASK_POLLING_CONSOLE_ID,
 
 	/* EOT polling task ID */
@@ -96,7 +91,6 @@ extern void task_rf24_demo(ak_msg_t*);
 /*  DECLARE: Task polling
  */
 /*****************************************************************************/
-extern void task_polling_zigbee();
 extern void task_polling_console();
 
 #endif //__TASK_LIST_H__

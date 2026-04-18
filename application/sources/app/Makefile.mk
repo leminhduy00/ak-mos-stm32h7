@@ -19,10 +19,6 @@ SOURCES_CPP += sources/app/task_fw.cpp
 SOURCES_CPP += sources/app/task_list.cpp
 SOURCES_CPP += sources/app/task_display.cpp
 
-ifeq ($(TASK_ZIGBEE_OPTION),-DTASK_ZIGBEE_EN)
-SOURCES_CPP += sources/app/task_zigbee.cpp
-endif
-
 ifeq ($(TASK_MBMASTER_OPTION),-DTASK_MBMASTER_EN)
 SOURCES_CPP += sources/app/app_modbus_pull.cpp
 endif
