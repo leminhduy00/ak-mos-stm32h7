@@ -22,7 +22,6 @@
 #include "app.h"
 #include "app_dbg.h"
 #include "task_shell.h"
-#include "task_uart_if.h"
 #include "task_list.h"
 
 //#pragma GCC optimize ("O3")

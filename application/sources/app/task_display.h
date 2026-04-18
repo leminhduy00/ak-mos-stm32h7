@@ -6,10 +6,6 @@
 #include "scr_info.h"
 #include "scr_startup.h"
 #include "scr_noen.h"
-#if defined (TASK_MBMASTER_EN)
-#include "scr_es35sw_th_sensor.h"
-#include "scr_lhio404_io_device.h"
-#endif
 
 #define LCD_WIDTH			(124)
 #define LCD_HEIGHT			(60)

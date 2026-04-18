@@ -51,13 +51,6 @@ IRQ_DEBUG_OPTION = -UAK_IO_IRQ_ANALYZER
 # Enable to using USB hareware configuration.
 USB_OPTION = -UUSING_USB_MOD
 
-# Interface compile option.
-IF_LINK_OPTION = -UIF_LINK_UART_EN
-IF_NETWORK_NRF24_OPTION = -UIF_NETWORK_NRF24_EN
-
-# Task compile option.
-TASK_MBMASTER_OPTION = -UTASK_MBMASTER_EN
-
 # Include sources file
 include sources/ak/Makefile.mk
 include sources/app/Makefile.mk
@@ -65,7 +58,6 @@ include sources/common/Makefile.mk
 include sources/driver/Makefile.mk
 include sources/libraries/Makefile.mk
 include sources/sys/Makefile.mk
-include sources/networks/Makefile.mk
 include sources/platform/stm32l/Makefile.mk
 
 OBJECTS_DIR = build_$(NAME_MODULE)
@@ -112,13 +104,6 @@ ARM_SIZE	=	$(GCC_PATH)/bin/arm-none-eabi-size
 CPU = -mthumb -march=armv7-m
 FPU = -mfloat-abi=soft
 
-# Interface option
-IF_OPTION +=	$(IF_LINK_OPTION)		\
-		$(IF_NETWORK_NRF24_OPTION)	\
-
-# App option
-TASK_OPTION +=	$(TASK_MBMASTER_OPTION)
-
 # Console log compile option
 CONSOLE_OPTION +=			\
 		-DLOGIN_PRINT_EN	\
@@ -138,8 +123,6 @@ GENERAL_FLAGS +=			\
 		$(RELEASE_OPTION)	\
 		$(APP_ADDR_OPTION)	\
 		$(USB_OPTION)		\
-		$(IF_OPTION)		\
-		$(TASK_OPTION)		\
 		-DUSE_STDPERIPH_DRIVER	\
 		-DSTM32L1XX_MD		\
 		-DSTM32L_PLATFORM	\

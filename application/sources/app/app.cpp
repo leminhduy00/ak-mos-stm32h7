@@ -38,11 +38,7 @@
 #include "task_list.h"
 #include "task_shell.h"
 #include "task_life.h"
-#include "task_if.h"
-#include "task_rf24_if.h"
-#include "task_uart_if.h"
 #include "task_display.h"
-#include "task_zigbee.h"
 
 /* sys include */
 #include "sys_boot.h"
@@ -54,22 +50,12 @@
 /* arduino include */
 #include "SPI.h"
 #include "WString.h"
-#include "HardwareSerial.h"
 #include "ArduinoJson.h"
 
 /* common include */
 #include "screen_manager.h"
 
 /* ----------------------- Platform includes --------------------------------*/
-
-/* ----------------------- Modbus includes ----------------------------------*/
-#if defined (TASK_MBMASTER_EN)
-#include "mbport.h"
-#include "mbm.h"
-#include "mbtypes.h"
-#include "common/mbportlayer.h"
-#endif
-
 #include "buzzer.h"
 
 /* ----------------------- Json includes ------------------------------------*/
@@ -131,12 +117,6 @@ int main_app() {
 
 	SPI.begin();
 
-	/* adc peripheral configure */
-	io_cfg_adc1();			/* configure adc for thermistor and CT sensor */
-
-	/* adc configure for ct sensor */
-	adc_bat_io_cfg();
-
 	/* flash io init */
 	flash_io_ctrl_init();
 
@@ -177,71 +157,6 @@ int main_app() {
 	flash_erase_sector(APP_FLASH_AK_DBG_FATAL_LOG_SECTOR);
 	flash_write(APP_FLASH_AK_DBG_FATAL_LOG_SECTOR, reinterpret_cast<uint8_t*>(&app_fatal_log), sizeof(fatal_log_t));
 
-#if defined (TASK_MBMASTER_EN)
-	/* modbus rtu init*/
-	uint8_t flag_init = eMBMSerialInitExt(&xMBMMaster, MB_RTU, MBM_SERIAL_PORT, MBM_SERIAL_BAUDRATE, MB_PAR_NONE, 1);
-	APP_PRINT ("Init mbMaster >> ");
-	switch (flag_init)
-	{
-	case MB_ENOERR:
-		APP_PRINT ("No error\n");
-		break;
-	case MB_ENOREG:
-		APP_PRINT ("Illegal register address\n");
-		break;
-	case MB_EINVAL:
-		APP_PRINT ("Illegal argument\n");
-		break;
-	case MB_EPORTERR:
-		APP_PRINT ("Porting layer error\n");
-		break;
-	case MB_ENORES:
-		APP_PRINT ("Insufficient resources\n");
-		break;
-	case MB_EIO:
-		APP_PRINT ("I/O error\n");
-		break;
-	case MB_EILLSTATE:
-		APP_PRINT ("Protocol stack in illegal state\n");
-		break;
-	case MB_EAGAIN:
-		APP_PRINT ("Retry I/O operation\n");
-		break;
-	case MB_ETIMEDOUT:
-		APP_PRINT ("Timeout error occurred\n");
-		break;
-	case MB_EX_ILLEGAL_FUNCTION:
-		APP_PRINT ("Illegal function exception\n");
-		break;
-	case MB_EX_ILLEGAL_DATA_ADDRESS:
-		APP_PRINT ("Illegal data address\n");
-		break;
-	case MB_EX_ILLEGAL_DATA_VALUE:
-		APP_PRINT ("Illegal data value\n");
-		break;
-	case MB_EX_SLAVE_DEVICE_FAILURE:
-		APP_PRINT ("Slave device failure\n");
-		break;
-	case MB_EX_ACKNOWLEDGE:
-		APP_PRINT ("Slave acknowledge\n");
-		break;
-	case MB_EX_SLAVE_BUSY:
-		APP_PRINT ("Slave device busy\n");
-		break;
-	case MB_EX_MEMORY_PARITY_ERROR:
-		APP_PRINT ("Memory parity error\n");
-		break;
-	case MB_EX_GATEWAY_PATH_UNAVAILABLE:
-		APP_PRINT ("Gateway path unavailable\n");
-		break;
-	case MB_EX_GATEWAY_TARGET_FAILED:
-		APP_PRINT ("Gateway target device failed to respond\n");
-		break;
-		
-	default:
-		break;
-	}
-#endif
 
 	EXIT_CRITICAL();
 
@@ -257,9 +172,7 @@ int main_app() {
 	/******************************************************************************
 	* run applications
 	*******************************************************************************/
-#if !defined(IF_LINK_UART_EN)
 	sys_ctrl_shell_sw_to_nonblock();
-#endif
 
 	return task_run();
 }
@@ -273,41 +186,35 @@ void task_polling_console() {
 		c = ring_buffer_char_get(&ring_buffer_console_rev);
 		EXIT_CRITICAL();
 
-#if defined (IF_LINK_UART_EN)
-		if (plink_hal_rev_byte(c) == LINK_HAL_IGNORED) {
-#endif
-			if (shell.index < SHELL_BUFFER_LENGHT - 1) {
+		if (shell.index < SHELL_BUFFER_LENGHT - 1) {
 
-				if (c == '\r' || c == '\n') { /* linefeed */
+			if (c == '\r' || c == '\n') { /* linefeed */
 
-					xputc('\r');
-					xputc('\n');
+				xputc('\r');
+				xputc('\n');
 
-					shell.data[shell.index] = c;
-					shell.data[shell.index + 1] = 0;
-					task_post_common_msg(AC_TASK_SHELL_ID, AC_SHELL_LOGIN_CMD, (uint8_t*)&shell.data[0], shell.index + 2);
+				shell.data[shell.index] = c;
+				shell.data[shell.index + 1] = 0;
+				task_post_common_msg(AC_TASK_SHELL_ID, AC_SHELL_LOGIN_CMD, (uint8_t*)&shell.data[0], shell.index + 2);
 
-					shell.index = 0;
-				}
-				else {
-
-					xputc(c);
-
-					if (c == 8 && shell.index) { /* backspace */
-						shell.index--;
-					}
-					else {
-						shell.data[shell.index++] = c;
-					}
-				}
-			}
-			else {
-				LOGIN_PRINT("\nerror: cmd too long, cmd size: %d, try again !\n", SHELL_BUFFER_LENGHT);
 				shell.index = 0;
 			}
-#if defined (IF_LINK_UART_EN)
+			else {
+
+				xputc(c);
+
+				if (c == 8 && shell.index) { /* backspace */
+					shell.index--;
+				}
+				else {
+					shell.data[shell.index++] = c;
+				}
+			}
 		}
-#endif
+		else {
+			LOGIN_PRINT("\nerror: cmd too long, cmd size: %d, try again !\n", SHELL_BUFFER_LENGHT);
+			shell.index = 0;
+		}
 	}
 }
 
@@ -322,7 +229,6 @@ void task_polling_console() {
 void app_start_timer() {
 	/* start timer to toggle life led */
 	timer_set(AC_TASK_LIFE_ID, AC_LIFE_SYSTEM_CHECK, AC_LIFE_TASK_TIMER_LED_LIFE_INTERVAL, TIMER_PERIODIC);
-	timer_set(AC_TASK_FW_ID, FW_CHECKING_REQ, FW_UPDATE_REQ_INTERVAL, TIMER_ONE_SHOT);
 	timer_set(AC_TASK_DISPLAY_ID, AC_DISPLAY_INITIAL, AC_DISPLAY_INITIAL_INTERVAL, TIMER_ONE_SHOT);
 }
 
@@ -338,9 +244,6 @@ void app_init_state_machine() {
  */
 void app_task_init() {
 	SCREEN_CTOR(&scr_mng_app, scr_startup_handle, &scr_startup);
-
-	task_post_pure_msg(AC_TASK_RF24_IF_ID, AC_RF24_IF_INIT_NETWORK);
-	task_post_pure_msg(AC_TASK_UART_IF_ID, AC_UART_IF_INIT);
 }
 
 /*****************************************************************************/

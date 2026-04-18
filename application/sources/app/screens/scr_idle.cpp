@@ -120,11 +120,7 @@ void scr_idle_handle(ak_msg_t* msg) {
 	case AC_DISPLAY_BUTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTON_MODE_RELEASED\n");
 		timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
-#if defined (TASK_MBMASTER_EN)
-		SCREEN_TRAN(scr_es35sw_th_sensor_handle, &scr_es35sw_th_sensor);
-#else
 		SCREEN_TRAN(scr_info_handle, &scr_info);
-#endif
 	}
 		break;
 
@@ -158,11 +154,7 @@ void scr_idle_handle(ak_msg_t* msg) {
 
 		if (v_idle_ball.empty()) {
 			timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
-#if defined (TASK_MBMASTER_EN)
-			SCREEN_TRAN(scr_es35sw_th_sensor_handle, &scr_es35sw_th_sensor);
-#else
 			SCREEN_TRAN(scr_info_handle, &scr_info);
-#endif
 		}
 	}
 		break;

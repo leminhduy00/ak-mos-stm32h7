@@ -181,30 +181,6 @@ extern void flash_cs_high();
 extern uint8_t flash_transfer(uint8_t);
 
 /******************************************************************************
-* nfr24l01 IO function
-*******************************************************************************/
-extern void nrf24l01_io_ctrl_init();
-extern void nrf24l01_spi_ctrl_init();
-extern void nrf24l01_ce_low();
-extern void nrf24l01_ce_high();
-extern void nrf24l01_csn_low();
-extern void nrf24l01_csn_high();
-extern uint8_t nrf24l01_spi_rw(uint8_t);
-
-/******************************************************************************
-* adc function
-* + themistor sensor
-*
-* Note: MUST be enable internal clock for adc module.
-*******************************************************************************/
-/* configure adc peripheral */
-extern void io_cfg_adc1(void);
-
-/* adc configure for CT sensor */
-extern void adc_bat_io_cfg();
-extern uint16_t adc_bat_io_read(uint8_t);
-
-/******************************************************************************
 * ssd1306 oled IO function
 *******************************************************************************/
 extern void ssd1306_clk_input_mode();
@@ -243,21 +219,6 @@ extern void internal_flash_lock();
 extern void internal_flash_erase_pages_cal(uint32_t address, uint32_t len);
 extern uint8_t internal_flash_write_cal(uint32_t address, uint8_t* data, uint32_t len);
 
-/******************************************************************************
-* uart2 function
-*******************************************************************************/
-void io_uart2_cfg();
-void io_uart2_putc(uint8_t);
-extern uint8_t io_uart2_getc();
-
-/*****************************************************************************
- *io uart for rs485-modbusRTU
- * see more in mbportserial.c
-******************************************************************************/
-extern void io_uart_rs485_cfg();
-extern void io_rs485_dir_mode_output();
-extern void io_rs485_dir_low();
-extern void io_rs485_dir_high();
 
 #ifdef __cplusplus
 }

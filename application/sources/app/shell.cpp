@@ -25,20 +25,13 @@
 #include "sys_irq.h"
 
 #include "app.h"
-#include "app_if.h"
 #include "app_dbg.h"
 #include "app_data.h"
 #include "app_flash.h"
-#include "app_eeprom.h"
 #include "app_non_clear_ram.h"
-#if defined (TASK_MBMASTER_EN)
-#include "app_modbus_pull.h"
-#endif
 
 #include "task_shell.h"
 #include "task_list.h"
-#include "task_list_if.h"
-#include "task_if.h"
 #include "task_life.h"
 
 #include "led.h"
@@ -80,7 +73,6 @@ int32_t shell_boot(uint8_t* argv);
 int32_t shell_fwu(uint8_t* argv);
 int32_t shell_psv(uint8_t* argv);
 int32_t shell_buzzer(uint8_t* argv);
-int32_t shell_modbus(uint8_t* argv);
 
 /*****************************************************************************/
 /*  command table
@@ -96,7 +88,6 @@ const cmd_line_t lgn_cmd_table[] = {
 	{(const int8_t*)"help",		shell_help,			(const int8_t*)"help info"},
 	{(const int8_t*)"reboot",	shell_reboot,		(const int8_t*)"reboot"},
 	{(const int8_t*)"ram",		shell_ram,			(const int8_t*)"ram"},
-	{(const int8_t*)"epi",		shell_epi,			(const int8_t*)"epprom init"},
 	{(const int8_t*)"fatal",	shell_fatal,		(const int8_t*)"fatal info"},
 	{(const int8_t*)"stt",		shell_stt,			(const int8_t*)"app status"},
 	{(const int8_t*)"flash",	shell_flash,		(const int8_t*)"flash"},
@@ -105,7 +96,6 @@ const cmd_line_t lgn_cmd_table[] = {
 	{(const int8_t*)"fwu",		shell_fwu,			(const int8_t*)"app burn firmware"},
 	{(const int8_t*)"psv",		shell_psv,			(const int8_t*)"psv"},
 	{(const int8_t*)"beep",		shell_buzzer,		(const int8_t*)"buzzer play tones"},
-	{(const int8_t*)"modbus",	shell_modbus,		(const int8_t*)"modbus master"},
 
 	/*************************************************************************/
 	/* debug command */
@@ -185,9 +175,6 @@ int32_t shell_ver(uint8_t* argv) {
 	LOGIN_PRINT("\tcpu clock:\t%d Hz\n", system_info.cpu_clock);
 	LOGIN_PRINT("\ttime tick:\t%d ms\n", system_info.tick);
 	LOGIN_PRINT("\tconsole:\t%d bps\n", system_info.console_baudrate);
-	LOGIN_PRINT("\n");
-	LOGIN_PRINT("\tVCC:\t%d mV\n", sys_ctr_get_vbat_voltage());
-	LOGIN_PRINT("\tTEMP:\t%d *C\n", sys_ctr_get_mcu_temperature());
 	LOGIN_PRINT("\n\n");
 	return 0;
 }
@@ -540,22 +527,6 @@ int32_t shell_lcd(uint8_t* argv) {
 int32_t shell_dbg(uint8_t* argv) {
 	(void)(argv);
 	switch (*(argv + 4)) {
-	case 'v': {
-		uint32_t vbat;
-		(void)vbat;
-		vbat = sys_ctr_get_vbat_voltage();
-		LOGIN_PRINT("vbat: %d\n", vbat);
-	}
-		break;
-
-	case 't': {
-		uint32_t temperature;
-		(void)temperature;
-		temperature = sys_ctr_get_mcu_temperature();
-		LOGIN_PRINT("temperature: %d\n", temperature);
-	}
-		break;
-
 	case 's': {
 		sys_ctr_stop_mcu();
 	}
@@ -845,39 +816,4 @@ int32_t shell_buzzer(uint8_t* argv) {
 	}
 
 	return 0;
-}
-
-int32_t shell_modbus(uint8_t* argv) {
-#if defined (TASK_MBMASTER_EN)
-	switch (*(argv + 7)) {
-	case 'r':
-		LOGIN_PRINT("Modbus polling all register: \n");
-		updateDataModbusDevice(&MB_ES35SW_TH_Sensor);
-		LOGIN_PRINT("--ES35-SW--\n");
-		for (uint16_t i = 0; i < MB_ES35SW_TH_Sensor.listRegAmount; i++) {
-			LOGIN_PRINT("regAddr[%d]: %d\t", i+1, MB_ES35SW_TH_Sensor.listRegDevice[i].regAddress);
-			LOGIN_PRINT("\trawValue: %d \n", MB_ES35SW_TH_Sensor.listRegDevice[i].regValue);
-		}
-
-		LOGIN_PRINT("\n--LHIO404--\n");
-		updateDataModbusDevice(&MB_LHIO404_IO_Device);
-		for (uint16_t i = 0; i < MB_LHIO404_IO_Device.listRegAmount; i++) {
-			LOGIN_PRINT("regAddr[%d]: %d\t", i+1, MB_LHIO404_IO_Device.listRegDevice[i].regAddress);
-			LOGIN_PRINT("\trawValue: %d \n", MB_LHIO404_IO_Device.listRegDevice[i].regValue);
-		}
-		LOGIN_PRINT("\nDone !\n");
-		break;
-
-	default:
-		LOGIN_PRINT("\n[HELP]\n");
-		LOGIN_PRINT("\nmodbus r\"            : read all register\n");
-		break;
-	}
-
-	return 0;
-#else
-	(void)argv;
-	LOGIN_PRINT("modbus is disabled in current build profile\n");
-	return 0;
-#endif
 }

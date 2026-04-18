@@ -5,10 +5,8 @@
 #include "app.h"
 #include "app_bsp.h"
 #include "app_dbg.h"
-#include "app_if.h"
 
 #include "task_list.h"
-#include "task_list_if.h"
 
 button_t btn_mode;
 button_t btn_up;

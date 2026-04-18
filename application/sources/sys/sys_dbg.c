@@ -14,7 +14,6 @@
 
 #include "flash.h"
 
-#include "app_eeprom.h"
 #include "app_flash.h"
 #include "xprintf.h"
 
