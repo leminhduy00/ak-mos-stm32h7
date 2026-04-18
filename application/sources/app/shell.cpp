@@ -42,9 +42,6 @@
 #include "task_life.h"
 
 #include "led.h"
-#if defined (USE_EEPROM_OPTION)
-#include "eeprom.h"
-#endif
 #include "Adafruit_ssd1306syp.h"
 #include "flash.h"
 
@@ -76,7 +73,6 @@ int32_t shell_ram(uint8_t* argv);
 int32_t shell_fatal(uint8_t* argv);
 int32_t shell_stt(uint8_t* argv);
 int32_t shell_epi(uint8_t* argv);
-int32_t shell_eps(uint8_t* argv);
 int32_t shell_flash(uint8_t* argv);
 int32_t shell_lcd(uint8_t* argv);
 int32_t shell_dbg(uint8_t* argv);
@@ -103,7 +99,6 @@ const cmd_line_t lgn_cmd_table[] = {
 	{(const int8_t*)"epi",		shell_epi,			(const int8_t*)"epprom init"},
 	{(const int8_t*)"fatal",	shell_fatal,		(const int8_t*)"fatal info"},
 	{(const int8_t*)"stt",		shell_stt,			(const int8_t*)"app status"},
-	{(const int8_t*)"eps",		shell_eps,			(const int8_t*)"epprom"},
 	{(const int8_t*)"flash",	shell_flash,		(const int8_t*)"flash"},
 	{(const int8_t*)"lcd",		shell_lcd,			(const int8_t*)"lcd"},
 	{(const int8_t*)"boot",		shell_boot,			(const int8_t*)"boot share"},
@@ -386,65 +381,6 @@ int32_t shell_stt(uint8_t* argv) {
 int32_t shell_epi(uint8_t* argv) {
 	(void)argv;
 	return 0;
-}
-
-int32_t shell_eps(uint8_t* argv) {
-#if defined(USE_EEPROM_OPTION)
-	uint8_t val = 0;
-
-	switch (*(argv + 4)) {
-	case 'd': {					/* data DEC format */
-		LOGIN_PRINT("\n");
-		for (uint32_t i = 0; i < EEPROM_END_ADDR; i++) {
-			if (!(i%16)) {
-				/* reset watchdog */
-				sys_ctrl_independent_watchdog_reset();
-				sys_ctrl_soft_watchdog_reset();
-
-				LOGIN_PRINT("\n0x%x\t" ,i);
-			}
-			eeprom_read(i, &val, sizeof(uint8_t));
-			LOGIN_PRINT("%d\t", val);
-		}
-		LOGIN_PRINT("\n");
-	}
-		break;
-
-	case 'h': {					/* data HEX format */
-		LOGIN_PRINT("\n");
-		for (uint32_t i = 0; i < EEPROM_END_ADDR; i++) {
-			if (!(i%16)) {
-				/* reset watchdog */
-				sys_ctrl_independent_watchdog_reset();
-				sys_ctrl_soft_watchdog_reset();
-
-				LOGIN_PRINT("\n0x%x\t" ,i);
-			}
-			eeprom_read(i, &val, sizeof(uint8_t));
-			LOGIN_PRINT("0x%x\t", val);
-		}
-		LOGIN_PRINT("\n");
-	}
-		break;
-
-	case 'r': {
-		LOGIN_PRINT("erasing...\n");
-		eeprom_erase(EEPROM_START_ADDR, EEPROM_END_ADDR - EEPROM_START_ADDR);
-		LOGIN_PRINT("completed\n");
-	}
-		break;
-
-	default:
-		LOGIN_PRINT("unkown option !\n");
-		break;
-	}
-
-	return 0;
-#else
-	(void)argv;
-	LOGIN_PRINT("eeprom is disabled in current build profile\n");
-	return 0;
-#endif
 }
 
 int32_t shell_flash(uint8_t* argv) {
