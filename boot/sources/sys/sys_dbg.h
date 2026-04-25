@@ -15,6 +15,7 @@ extern "C"
 #include <stdint.h>
 
 #include "xprintf.h"
+#include "stm32h.h"
 
 #if defined(SYS_DBG_EN)
 #define SYS_DBG(fmt, ...)       xprintf((const char*)fmt, ##__VA_ARGS__)

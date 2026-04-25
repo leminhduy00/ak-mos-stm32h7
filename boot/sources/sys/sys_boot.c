@@ -1,8 +1,19 @@
+/*****************************************************************************/
+/* C Standard Libraries
+ *****************************************************************************/
 #include <string.h>
 
+/*****************************************************************************/
+/* System Includes
+ *****************************************************************************/
 #include "sys_boot.h"
-#include "sys_io.h"
 #include "sys_dbg.h"
+#include "sys_io.h"
+
+/*****************************************************************************/
+/* Driver Includes
+ *****************************************************************************/
+#include "flash_internal.h"
 
 static sys_boot_t sys_boot_obj;
 
@@ -10,18 +21,17 @@ static sys_boot_t sys_boot_obj;
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wstringop-overflow="
 void sys_boot_init() {
-	extern uint32_t _start_boot_share_data_flash;
-	memcpy((uint8_t*)&sys_boot_obj, (uint8_t*)((uint32_t)&_start_boot_share_data_flash), sizeof(sys_boot_t));
-}
-#pragma GCC diagnostic pop
+	extern uint8_t _start_boot_share_data_flash[];
 
+	memcpy((uint8_t*)&sys_boot_obj, (uint8_t*)(_start_boot_share_data_flash), sizeof(sys_boot_t));
+}
 
 void sys_boot_get(sys_boot_t* obj) {
 	memcpy((uint8_t*)obj, (uint8_t*)&sys_boot_obj, sizeof(sys_boot_t));
 }
 
 uint8_t sys_boot_set(sys_boot_t* sys_boot) {
-	extern uint32_t _start_boot_share_data_flash;
+	extern uint8_t _start_boot_share_data_flash[];
 
 	/* update RAM object */
 	memcpy((uint8_t*)&sys_boot_obj, (uint8_t*)sys_boot, sizeof(sys_boot_t));
