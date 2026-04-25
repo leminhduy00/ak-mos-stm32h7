@@ -7,7 +7,6 @@ extern "C"
 #endif
 
 #include <stdint.h>
-#include "io_cfg.h"
 
 // Single tone definition
 typedef struct {

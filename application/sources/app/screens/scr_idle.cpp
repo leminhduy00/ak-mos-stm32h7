@@ -89,7 +89,8 @@ int ball::total;
 
 void view_scr_idle() {
 	for(ball _ball : v_idle_ball) {
-		view_render.drawCircle(_ball.x, _ball.y, _ball.radius, 144);
+		oled_display.setTextColor(COLOR_WHITE);
+		oled_display.drawCircle(_ball.x, _ball.y, _ball.radius);
 	}
 }
 

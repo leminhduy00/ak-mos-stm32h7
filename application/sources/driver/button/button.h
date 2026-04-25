@@ -21,8 +21,8 @@ extern "C"
  * This define depend on hardware circuit.
  * Note: please change it for respective.
  */
-#define		BUTTON_HW_STATE_PRESSED					(0x00)
-#define		BUTTON_HW_STATE_RELEASED				(0x01)
+#define		BUTTON_HW_STATE_PRESSED					(0x01)
+#define		BUTTON_HW_STATE_RELEASED				(0x00)
 
 #define		BUTTON_SW_STATE_PRESSED					(0x00)
 #define		BUTTON_SW_STATE_LONG_PRESSED			(0x01)

@@ -1,6 +1,11 @@
-include sources/driver/Adafruit_ssd1306syp/Makefile.mk
 include sources/driver/button/Makefile.mk
 include sources/driver/flash/Makefile.mk
 include sources/driver/led/Makefile.mk
 include sources/driver/gpio/Makefile.mk
+include sources/driver/timer/Makefile.mk
 include sources/driver/buzzer/Makefile.mk
+include sources/driver/iwdg/Makefile.mk
+include sources/driver/usart/Makefile.mk
+include sources/driver/spi/Makefile.mk
+include sources/driver/sh1106/Makefile.mk
+include sources/driver/display/Makefile.mk

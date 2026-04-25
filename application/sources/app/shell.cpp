@@ -3,41 +3,64 @@
  * @author: GaoKong
  * @date:   13/08/2016
  ******************************************************************************
-**/
+ **/
 
+/*****************************************************************************/
+/* C Standard Libraries
+ *****************************************************************************/
+#include <malloc.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <string.h>
 
+/*****************************************************************************/
+/* Kernel Includes
+ *****************************************************************************/
 #include "ak.h"
+#include "message.h"
 #include "task.h"
 #include "timer.h"
-#include "message.h"
 
+/*****************************************************************************/
+/* Common Includes
+ *****************************************************************************/
 #include "cmd_line.h"
-#include "xprintf.h"
 #include "view_render.h"
+#include "xprintf.h"
 
+/*****************************************************************************/
+/* System Includes
+ *****************************************************************************/
+#include "sys_boot.h"
 #include "sys_ctrl.h"
-#include "sys_io.h"
 #include "sys_dbg.h"
+#include "sys_io.h"
 #include "sys_irq.h"
 
+/*****************************************************************************/
+/* Application Includes
+ *****************************************************************************/
 #include "app.h"
-#include "app_dbg.h"
 #include "app_data.h"
+#include "app_dbg.h"
 #include "app_flash.h"
 #include "app_non_clear_ram.h"
 
-#include "task_shell.h"
-#include "task_list.h"
 #include "task_life.h"
+#include "task_list.h"
+#include "task_shell.h"
 
-#include "led.h"
-#include "Adafruit_ssd1306syp.h"
+/*****************************************************************************/
+/* Driver Includes
+ *****************************************************************************/
+#include "display.h"
 #include "flash.h"
+#include "led.h"
+// #include "Adafruit_ssd1306syp.h"
 
+/*****************************************************************************/
+/* Library Includes
+ *****************************************************************************/
 #include "qrcode.h"
 
 /*****************************************************************************/
@@ -446,73 +469,65 @@ int32_t shell_flash(uint8_t* argv) {
 int32_t shell_lcd(uint8_t* argv) {
 	switch (*(argv + 4)) {
 	case 'i':
-		view_render.initialize();
+		oled_display.init();
 		break;
 
 	case 'o':
-		view_render.display_on();
+		oled_display.display_on();
 		break;
 
 	case 'f':
-		view_render.display_off();
+		oled_display.display_off();
 		break;
 
 	case 'b':
-		view_render.fillScreen(BLACK);
-		view_render.update();
+		oled_display.fillScreen(COLOR_BLACK);
+		oled_display.update();
 		break;
 
 	case 'w':
-		view_render.fillScreen(WHITE);
-		view_render.update();
+		oled_display.fillScreen(COLOR_WHITE);
+		oled_display.update();
 		break;
 
 	case 't':
 		/* ak logo */
 #define AK_LOGO_AXIS_X	23
 #define AK_LOGO_TEXT	(AK_LOGO_AXIS_X + 4)
-
-		view_render.setTextSize(1);
-		view_render.setTextColor(WHITE);
-		view_render.setCursor(AK_LOGO_AXIS_X, 3);
-		view_render.print("   __    _  _ ");
-		view_render.setCursor(AK_LOGO_AXIS_X, 10);
-		view_render.print("  /__\\  ( )/ )");
-		view_render.setCursor(AK_LOGO_AXIS_X, 20);
-		view_render.print(" /(__)\\ (   (");
-		view_render.setCursor(AK_LOGO_AXIS_X, 30);
-		view_render.print("(__)(__)(_)\\_)");
-		view_render.setCursor(AK_LOGO_TEXT, 42);
-		view_render.print("Active Kernel");
-		view_render.update ();
+		oled_display.setTextColor(COLOR_WHITE);
+		oled_display.drawText(AK_LOGO_AXIS_X, 3, "   __    _  _ ");
+		oled_display.drawText(AK_LOGO_AXIS_X, 10,"  /__\\  ( )/ )");
+		oled_display.drawText(AK_LOGO_AXIS_X, 20," /(__)\\ (   (");
+		oled_display.drawText(AK_LOGO_AXIS_X, 20," /(__)\\ (   (");
+		oled_display.drawText(AK_LOGO_AXIS_X, 30,"(__)(__)(_)\\_)");
+		oled_display.drawText(AK_LOGO_TEXT  , 42, "Active Kernel");
+		oled_display.update();
 		break;
 
 	case 'r':
-		view_render.clear ();
+		oled_display.clear();
 		break;
 
 	case 'a':
-		view_render.setTextSize (2);
-		view_render.setTextColor (WHITE);
-		view_render.setCursor (10, 10);
-		view_render.print ("12345");
-		view_render.update ();
+		// view_render.setTextSize (2);
+		oled_display.setTextColor(COLOR_WHITE);
+		oled_display.drawText(10, 10, "12345");
+		oled_display.update();
 		break;
 
 	case 'c':
-		view_render.setTextSize (2);
-		view_render.setTextColor (BLACK);
-		view_render.setCursor (10, 40);
-		view_render.print ("abcd");
-		view_render.update ();
+		// view_render.setTextSize (2);
+		oled_display.setTextColor(COLOR_BLACK);
+		oled_display.drawText (10, 40, "abcd");
+		oled_display.update();
 		break;
 
 	case 'p':
 		// draw a single pixel
-		view_render.drawPixel(9, 1, WHITE);
-		view_render.drawPixel(13, 4, WHITE);
-		view_render.drawPixel(16, 7, WHITE);
-		view_render.update ();
+		oled_display.drawPixel(9, 1, COLOR_WHITE);
+		oled_display.drawPixel(13, 4, COLOR_WHITE);
+		oled_display.drawPixel(16, 7, COLOR_WHITE);
+		oled_display.update();
 		break;
 
 	default:
@@ -542,7 +557,7 @@ int32_t shell_dbg(uint8_t* argv) {
 
 int32_t shell_ram(uint8_t* argv) {
 	extern uint32_t _start_ram;
-	extern uint32_t _estack;
+	extern uint32_t _end_ram;
 
 	char* str_start_addr = NULL;
 	char* str_stop_addr = NULL;
@@ -552,7 +567,7 @@ int32_t shell_ram(uint8_t* argv) {
 	uint8_t len = str_parser((char*)argv);
 
 	LOGIN_PRINT("RAM start: 0x%x\n", ((uint32_t)&_start_ram));
-	LOGIN_PRINT("RAM   end: 0x%x\n", ((uint32_t)&_estack));
+	LOGIN_PRINT("RAM   end: 0x%x\n", ((uint32_t)&_end_ram));
 
 	/* "ram x 0x1000 0xA000" */
 	switch (*(argv + 4)) {
@@ -566,7 +581,7 @@ int32_t shell_ram(uint8_t* argv) {
 			LOGIN_PRINT("start_addr: 0x%x\n", start_addr);
 			LOGIN_PRINT("stop_addr: 0x%x\n", stop_addr);
 
-			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_estack)) {
+			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_end_ram)) {
 
 				/* start dump ram */
 				LOGIN_PRINT("\n");
@@ -604,7 +619,7 @@ int32_t shell_ram(uint8_t* argv) {
 			LOGIN_PRINT("start_addr: 0x%x\n", start_addr);
 			LOGIN_PRINT("stop_addr: 0x%x\n", stop_addr);
 
-			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_estack)) {
+			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_end_ram)) {
 
 				/* start dump ram */
 				LOGIN_PRINT("\n");
@@ -641,7 +656,7 @@ int32_t shell_ram(uint8_t* argv) {
 			LOGIN_PRINT("start_addr: 0x%x\n", start_addr);
 			LOGIN_PRINT("stop_addr: 0x%x\n", stop_addr);
 
-			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_estack)) {
+			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_end_ram)) {
 
 				/* start dump ram */
 				LOGIN_PRINT("\n");

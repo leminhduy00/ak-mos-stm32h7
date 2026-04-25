@@ -34,7 +34,7 @@ void view_scr_info() {
 
 	for (uint8_t y = 0; y < qrcode.size; y++) {
 		for (uint8_t x = 0; x < qrcode.size; x++) {
-			view_render.drawPixel(x+40, y+2, qrcode_getModule(&qrcode, x, y) ? 1 : 0);
+			oled_display.drawPixel(x+40, y+2, qrcode_getModule(&qrcode, x, y) ? 1 : 0);
 		}
 	}
 }
@@ -51,6 +51,7 @@ void scr_info_handle(ak_msg_t* msg) {
 		APP_DBG_SIG("AC_DISPLAY_SHOW_IDLE\n");
 		SCREEN_TRAN(scr_idle_handle, &scr_idle);
 	}
+		break;
 
 	case AC_DISPLAY_BUTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTON_MODE_RELEASED\n");

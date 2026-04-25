@@ -1,3 +1,3 @@
+include sources/libraries/CMSIS/Makefile.mk
+include sources/libraries/STM32H7xx_HAL_Driver/Makefile.mk
 include sources/libraries/QRCode/Makefile.mk
-include sources/libraries/ArduinoJson/Makefile.mk
-include sources/libraries/nlohmann/Makefile.mk

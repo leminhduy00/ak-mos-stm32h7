@@ -3,60 +3,71 @@
  * @author: GaoKong
  * @date:   13/08/2016
  ******************************************************************************
-**/
+ **/
+
+/*****************************************************************************/
+/* C Standard Libraries
+ *****************************************************************************/
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 
+/*****************************************************************************/
+/* C++ STL Headers
+ *****************************************************************************/
+#include <array>
+#include <deque>
 #include <forward_list>
 #include <functional>
 #include <iterator>
-#include <vector>
-#include <deque>
-#include <queue>
-#include <array>
 #include <map>
+#include <queue>
+#include <vector>
 
-/* kernel include */
+/*****************************************************************************/
+/* Kernel Includes
+ *****************************************************************************/
 #include "ak.h"
+#include "fsm.h"
 #include "message.h"
 #include "timer.h"
-#include "fsm.h"
 
-/* driver include */
-#include "led.h"
+/*****************************************************************************/
+/* Driver Includes
+ *****************************************************************************/
 #include "button.h"
+#include "display.h"
 #include "flash.h"
-
-/* app include */
+#include "led.h"
+#include "buzzer.h"
+/*****************************************************************************/
+/* Application Includes
+ *****************************************************************************/
 #include "app.h"
-#include "app_dbg.h"
 #include "app_bsp.h"
+#include "app_dbg.h"
 #include "app_flash.h"
 #include "app_non_clear_ram.h"
 
+#include "task_display.h"
+#include "task_life.h"
 #include "task_list.h"
 #include "task_shell.h"
-#include "task_life.h"
-#include "task_display.h"
 
-/* sys include */
+/*****************************************************************************/
+/* System Includes
+ *****************************************************************************/
 #include "sys_boot.h"
-#include "sys_irq.h"
-#include "sys_io.h"
 #include "sys_ctrl.h"
 #include "sys_dbg.h"
+#include "sys_io.h"
+#include "sys_irq.h"
 
-/* arduino include */
-#include "SPI.h"
-#include "WString.h"
-#include "ArduinoJson.h"
-
-/* common include */
+/*****************************************************************************/
+/* Common Includes
+ *****************************************************************************/
 #include "screen_manager.h"
 
-/* ----------------------- Platform includes --------------------------------*/
-#include "buzzer.h"
 
 /* ----------------------- Json includes ------------------------------------*/
 //#include "json.hpp"
@@ -115,10 +126,9 @@ int main_app() {
 	sys_ctrl_independent_watchdog_init();	/* 32s */
 	sys_ctrl_soft_watchdog_init(200);		/* 20s */
 
-	SPI.begin();
 
 	/* flash io init */
-	flash_io_ctrl_init();
+	flash_ctrl_init();
 
 	/*********************
 	* software configure *
@@ -130,6 +140,9 @@ int main_app() {
 	led_init(&led_life, led_life_init, led_life_on, led_life_off);
 
 	ring_buffer_char_init(&ring_buffer_console_rev, buffer_console_rev, BUFFER_CONSOLE_REV_SIZE);
+
+	/* display init */
+	io_display_init();
 
 	/* button init */
 	button_init(&btn_mode,	10,	BUTTON_MODE_ID,	io_button_mode_init,	io_button_mode_read,	btn_mode_callback);
@@ -158,7 +171,7 @@ int main_app() {
 	flash_write(APP_FLASH_AK_DBG_FATAL_LOG_SECTOR, reinterpret_cast<uint8_t*>(&app_fatal_log), sizeof(fatal_log_t));
 
 
-	EXIT_CRITICAL();
+	// EXIT_CRITICAL();
 
 	/* start timer for application */
 	app_init_state_machine();
