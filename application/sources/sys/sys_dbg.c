@@ -14,7 +14,6 @@
 
 #include "flash.h"
 
-#include "app_eeprom.h"
 #include "app_flash.h"
 #include "xprintf.h"
 
@@ -27,7 +26,7 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 	extern uint32_t _estack;
 
 	uint32_t len_of_ram = (uint32_t)&_estack - (uint32_t)&_start_ram;
-	uint32_t ram_dump_num_64k_needed = (len_of_ram / FLASH_BLOCK_64K_SIZE) + 1;
+	uint32_t ram_dump_num_64k_needed = (len_of_ram / W25QXX_FLASH_BLOCK_64K_SIZE) + 1;
 	uint32_t index;
 
 	unsigned char rev_c = 0;
@@ -113,7 +112,7 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 	 ************************/
 	SYS_PRINT("start dump RAM to FLASH\n");
 	for (index = 0; index < ram_dump_num_64k_needed; index++) {
-		flash_erase_block_64k(APP_FLASH_DUMP_RAM_START_ADDR + (FLASH_BLOCK_64K_SIZE * index));
+		flash_erase_block_64k(APP_FLASH_DUMP_RAM_START_ADDR + (W25QXX_FLASH_BLOCK_64K_SIZE * index));
 		sys_ctrl_delay_us(100);
 	}
 

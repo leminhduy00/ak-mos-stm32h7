@@ -4,3 +4,4 @@ CPPFLAGS += -I./sources/driver/gpio
 VPATH += sources/driver/gpio
 
 SOURCES += sources/driver/gpio/gpio_output.c
+SOURCES += sources/driver/gpio/gpio.c

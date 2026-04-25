@@ -1,0 +1,53 @@
+### Clang-Format Style Configuration File ###
+### https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+# 헤더 파일 자동 정렬 비활성화.
+SortIncludes: false
+# Microsoft 코딩 스타일 가이드 준수
+BasedOnStyle: Microsoft
+# 중괄호를 새 줄에 배치 (Allman 스타일).
+BreakBeforeBraces: Allman
+# 열 너비 제한 없음 (긴 줄 허용).
+ColumnLimit: 0
+# 들여쓰기에 탭(Tab) 사용
+UseTab: Always
+# 1탭 = 4칸 공백.
+IndentWidth: 4
+TabWidth: 4
+# 초기화 멤버의 들여쓰기를 8칸으로 설정
+ConstructorInitializerIndentWidth: 8
+# C 표준(C11, C99 등) 자동 감지
+Standard: Auto
+# 줄 끝 주석을 열 맞춤.
+AlignTrailingComments: true
+# 연속된 매크로 열 맞춤.
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true # 빈 줄 건너뛰고 정렬.
+  AcrossComments: false # 주석 줄은 무시.
+# 할당문(=)의 열 맞춤 비활성화.
+AlignConsecutiveAssignments:
+  Enabled: false
+# 연산자(+, -, * 등)의 피연산자 정렬.
+AlignOperands: Align
+# case 레이블을 한 줄에 허용하지 않음.
+AllowShortCaseLabelsOnASingleLine: false
+# if 문을 한 줄에 작성하지 않음.
+AllowShortIfStatementsOnASingleLine: Never
+# 포인터(*)를 타입 왼쪽에 정렬.
+PointerAlignment: Left
+# case 레이블을 들여쓰기 적용.
+IndentCaseLabels: true
+# 추가 설정: 구조체 초기화 시 멤버 강제 분리
+BreakConstructorInitializers: BeforeColon
+# Insert Newline At End Of File
+InsertNewlineAtEOF: true
+# Align escaped newlines as far left as possible
+AlignEscapedNewlines: Left
+AlignAfterOpenBracket: Align
+# Allow parameter to be placed in multiple lines
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+# Not packing parameter in one line
+BinPackArguments: false
+BinPackParameters: false

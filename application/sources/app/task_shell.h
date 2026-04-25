@@ -11,11 +11,6 @@
 #include "cmd_line.h"
 #include "ring_buffer.h"
 
-#if defined (IF_LINK_UART_EN)
-#include "link_phy.h"
-#include "link_hal.h"
-#endif
-
 #define SHELL_BUFFER_LENGHT				(32)
 #define BUFFER_CONSOLE_REV_SIZE			(256)
 

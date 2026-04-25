@@ -89,7 +89,8 @@ int ball::total;
 
 void view_scr_idle() {
 	for(ball _ball : v_idle_ball) {
-		view_render.drawCircle(_ball.x, _ball.y, _ball.radius, 144);
+		oled_display.setTextColor(COLOR_WHITE);
+		oled_display.drawCircle(_ball.x, _ball.y, _ball.radius);
 	}
 }
 
@@ -120,7 +121,7 @@ void scr_idle_handle(ak_msg_t* msg) {
 	case AC_DISPLAY_BUTON_MODE_RELEASED: {
 		APP_DBG_SIG("AC_DISPLAY_BUTON_MODE_RELEASED\n");
 		timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
-		SCREEN_TRAN(scr_es35sw_th_sensor_handle, &scr_es35sw_th_sensor);
+		SCREEN_TRAN(scr_info_handle, &scr_info);
 	}
 		break;
 
@@ -154,7 +155,7 @@ void scr_idle_handle(ak_msg_t* msg) {
 
 		if (v_idle_ball.empty()) {
 			timer_remove_attr(AC_TASK_DISPLAY_ID, AC_DISPLAY_SHOW_IDLE_BALL_MOVING_UPDATE);
-			SCREEN_TRAN(scr_es35sw_th_sensor_handle, &scr_es35sw_th_sensor);
+			SCREEN_TRAN(scr_info_handle, &scr_info);
 		}
 	}
 		break;

@@ -3,47 +3,64 @@
  * @author: GaoKong
  * @date:   13/08/2016
  ******************************************************************************
-**/
+ **/
 
+/*****************************************************************************/
+/* C Standard Libraries
+ *****************************************************************************/
+#include <malloc.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <string.h>
 
+/*****************************************************************************/
+/* Kernel Includes
+ *****************************************************************************/
 #include "ak.h"
+#include "message.h"
 #include "task.h"
 #include "timer.h"
-#include "message.h"
 
+/*****************************************************************************/
+/* Common Includes
+ *****************************************************************************/
 #include "cmd_line.h"
-#include "xprintf.h"
 #include "view_render.h"
+#include "xprintf.h"
 
+/*****************************************************************************/
+/* System Includes
+ *****************************************************************************/
+#include "sys_boot.h"
 #include "sys_ctrl.h"
-#include "sys_io.h"
 #include "sys_dbg.h"
+#include "sys_io.h"
 #include "sys_irq.h"
 
+/*****************************************************************************/
+/* Application Includes
+ *****************************************************************************/
 #include "app.h"
-#include "app_if.h"
-#include "app_dbg.h"
 #include "app_data.h"
+#include "app_dbg.h"
 #include "app_flash.h"
-#include "app_eeprom.h"
 #include "app_non_clear_ram.h"
-#include "app_modbus_pull.h"
 
-#include "task_shell.h"
-#include "task_list.h"
-#include "task_list_if.h"
-#include "task_if.h"
 #include "task_life.h"
+#include "task_list.h"
+#include "task_shell.h"
 
-#include "led.h"
-#include "eeprom.h"
-#include "Adafruit_ssd1306syp.h"
+/*****************************************************************************/
+/* Driver Includes
+ *****************************************************************************/
+#include "display.h"
 #include "flash.h"
+#include "led.h"
+// #include "Adafruit_ssd1306syp.h"
 
+/*****************************************************************************/
+/* Library Includes
+ *****************************************************************************/
 #include "qrcode.h"
 
 /*****************************************************************************/
@@ -72,7 +89,6 @@ int32_t shell_ram(uint8_t* argv);
 int32_t shell_fatal(uint8_t* argv);
 int32_t shell_stt(uint8_t* argv);
 int32_t shell_epi(uint8_t* argv);
-int32_t shell_eps(uint8_t* argv);
 int32_t shell_flash(uint8_t* argv);
 int32_t shell_lcd(uint8_t* argv);
 int32_t shell_dbg(uint8_t* argv);
@@ -80,7 +96,6 @@ int32_t shell_boot(uint8_t* argv);
 int32_t shell_fwu(uint8_t* argv);
 int32_t shell_psv(uint8_t* argv);
 int32_t shell_buzzer(uint8_t* argv);
-int32_t shell_modbus(uint8_t* argv);
 
 /*****************************************************************************/
 /*  command table
@@ -96,17 +111,14 @@ const cmd_line_t lgn_cmd_table[] = {
 	{(const int8_t*)"help",		shell_help,			(const int8_t*)"help info"},
 	{(const int8_t*)"reboot",	shell_reboot,		(const int8_t*)"reboot"},
 	{(const int8_t*)"ram",		shell_ram,			(const int8_t*)"ram"},
-	{(const int8_t*)"epi",		shell_epi,			(const int8_t*)"epprom init"},
 	{(const int8_t*)"fatal",	shell_fatal,		(const int8_t*)"fatal info"},
 	{(const int8_t*)"stt",		shell_stt,			(const int8_t*)"app status"},
-	{(const int8_t*)"eps",		shell_eps,			(const int8_t*)"epprom"},
 	{(const int8_t*)"flash",	shell_flash,		(const int8_t*)"flash"},
 	{(const int8_t*)"lcd",		shell_lcd,			(const int8_t*)"lcd"},
 	{(const int8_t*)"boot",		shell_boot,			(const int8_t*)"boot share"},
 	{(const int8_t*)"fwu",		shell_fwu,			(const int8_t*)"app burn firmware"},
 	{(const int8_t*)"psv",		shell_psv,			(const int8_t*)"psv"},
 	{(const int8_t*)"beep",		shell_buzzer,		(const int8_t*)"buzzer play tones"},
-	{(const int8_t*)"modbus",	shell_modbus,		(const int8_t*)"modbus master"},
 
 	/*************************************************************************/
 	/* debug command */
@@ -186,9 +198,6 @@ int32_t shell_ver(uint8_t* argv) {
 	LOGIN_PRINT("\tcpu clock:\t%d Hz\n", system_info.cpu_clock);
 	LOGIN_PRINT("\ttime tick:\t%d ms\n", system_info.tick);
 	LOGIN_PRINT("\tconsole:\t%d bps\n", system_info.console_baudrate);
-	LOGIN_PRINT("\n");
-	LOGIN_PRINT("\tVCC:\t%d mV\n", sys_ctr_get_vbat_voltage());
-	LOGIN_PRINT("\tTEMP:\t%d *C\n", sys_ctr_get_mcu_temperature());
 	LOGIN_PRINT("\n\n");
 	return 0;
 }
@@ -384,59 +393,6 @@ int32_t shell_epi(uint8_t* argv) {
 	return 0;
 }
 
-int32_t shell_eps(uint8_t* argv) {
-	uint8_t val = 0;
-
-	switch (*(argv + 4)) {
-	case 'd': {					/* data DEC format */
-		LOGIN_PRINT("\n");
-		for (uint32_t i = 0; i < EEPROM_END_ADDR; i++) {
-			if (!(i%16)) {
-				/* reset watchdog */
-				sys_ctrl_independent_watchdog_reset();
-				sys_ctrl_soft_watchdog_reset();
-
-				LOGIN_PRINT("\n0x%x\t" ,i);
-			}
-			eeprom_read(i, &val, sizeof(uint8_t));
-			LOGIN_PRINT("%d\t", val);
-		}
-		LOGIN_PRINT("\n");
-	}
-		break;
-
-	case 'h': {					/* data HEX format */
-		LOGIN_PRINT("\n");
-		for (uint32_t i = 0; i < EEPROM_END_ADDR; i++) {
-			if (!(i%16)) {
-				/* reset watchdog */
-				sys_ctrl_independent_watchdog_reset();
-				sys_ctrl_soft_watchdog_reset();
-
-				LOGIN_PRINT("\n0x%x\t" ,i);
-			}
-			eeprom_read(i, &val, sizeof(uint8_t));
-			LOGIN_PRINT("0x%x\t", val);
-		}
-		LOGIN_PRINT("\n");
-	}
-		break;
-
-	case 'r': {
-		LOGIN_PRINT("erasing...\n");
-		eeprom_erase(EEPROM_START_ADDR, EEPROM_END_ADDR - EEPROM_START_ADDR);
-		LOGIN_PRINT("completed\n");
-	}
-		break;
-
-	default:
-		LOGIN_PRINT("unkown option !\n");
-		break;
-	}
-
-	return 0;
-}
-
 int32_t shell_flash(uint8_t* argv) {
 	/* "flash d 0x1000 0xA000" */
 	switch (*(argv + 6)) {
@@ -513,73 +469,65 @@ int32_t shell_flash(uint8_t* argv) {
 int32_t shell_lcd(uint8_t* argv) {
 	switch (*(argv + 4)) {
 	case 'i':
-		view_render.initialize();
+		oled_display.init();
 		break;
 
 	case 'o':
-		view_render.display_on();
+		oled_display.display_on();
 		break;
 
 	case 'f':
-		view_render.display_off();
+		oled_display.display_off();
 		break;
 
 	case 'b':
-		view_render.fillScreen(BLACK);
-		view_render.update();
+		oled_display.fillScreen(COLOR_BLACK);
+		oled_display.update();
 		break;
 
 	case 'w':
-		view_render.fillScreen(WHITE);
-		view_render.update();
+		oled_display.fillScreen(COLOR_WHITE);
+		oled_display.update();
 		break;
 
 	case 't':
 		/* ak logo */
 #define AK_LOGO_AXIS_X	23
 #define AK_LOGO_TEXT	(AK_LOGO_AXIS_X + 4)
-
-		view_render.setTextSize(1);
-		view_render.setTextColor(WHITE);
-		view_render.setCursor(AK_LOGO_AXIS_X, 3);
-		view_render.print("   __    _  _ ");
-		view_render.setCursor(AK_LOGO_AXIS_X, 10);
-		view_render.print("  /__\\  ( )/ )");
-		view_render.setCursor(AK_LOGO_AXIS_X, 20);
-		view_render.print(" /(__)\\ (   (");
-		view_render.setCursor(AK_LOGO_AXIS_X, 30);
-		view_render.print("(__)(__)(_)\\_)");
-		view_render.setCursor(AK_LOGO_TEXT, 42);
-		view_render.print("Active Kernel");
-		view_render.update ();
+		oled_display.setTextColor(COLOR_WHITE);
+		oled_display.drawText(AK_LOGO_AXIS_X, 3, "   __    _  _ ");
+		oled_display.drawText(AK_LOGO_AXIS_X, 10,"  /__\\  ( )/ )");
+		oled_display.drawText(AK_LOGO_AXIS_X, 20," /(__)\\ (   (");
+		oled_display.drawText(AK_LOGO_AXIS_X, 20," /(__)\\ (   (");
+		oled_display.drawText(AK_LOGO_AXIS_X, 30,"(__)(__)(_)\\_)");
+		oled_display.drawText(AK_LOGO_TEXT  , 42, "Active Kernel");
+		oled_display.update();
 		break;
 
 	case 'r':
-		view_render.clear ();
+		oled_display.clear();
 		break;
 
 	case 'a':
-		view_render.setTextSize (2);
-		view_render.setTextColor (WHITE);
-		view_render.setCursor (10, 10);
-		view_render.print ("12345");
-		view_render.update ();
+		// view_render.setTextSize (2);
+		oled_display.setTextColor(COLOR_WHITE);
+		oled_display.drawText(10, 10, "12345");
+		oled_display.update();
 		break;
 
 	case 'c':
-		view_render.setTextSize (2);
-		view_render.setTextColor (BLACK);
-		view_render.setCursor (10, 40);
-		view_render.print ("abcd");
-		view_render.update ();
+		// view_render.setTextSize (2);
+		oled_display.setTextColor(COLOR_BLACK);
+		oled_display.drawText (10, 40, "abcd");
+		oled_display.update();
 		break;
 
 	case 'p':
 		// draw a single pixel
-		view_render.drawPixel(9, 1, WHITE);
-		view_render.drawPixel(13, 4, WHITE);
-		view_render.drawPixel(16, 7, WHITE);
-		view_render.update ();
+		oled_display.drawPixel(9, 1, COLOR_WHITE);
+		oled_display.drawPixel(13, 4, COLOR_WHITE);
+		oled_display.drawPixel(16, 7, COLOR_WHITE);
+		oled_display.update();
 		break;
 
 	default:
@@ -594,29 +542,6 @@ int32_t shell_lcd(uint8_t* argv) {
 int32_t shell_dbg(uint8_t* argv) {
 	(void)(argv);
 	switch (*(argv + 4)) {
-	case '0': {
-#if defined(TASK_ZIGBEE_EN)
-		task_post_pure_msg(AC_TASK_ZIGBEE_ID, AC_ZIGBEE_PERMIT_JOINING_REQ);
-#endif
-	}
-		break;
-
-	case 'v': {
-		uint32_t vbat;
-		(void)vbat;
-		vbat = sys_ctr_get_vbat_voltage();
-		LOGIN_PRINT("vbat: %d\n", vbat);
-	}
-		break;
-
-	case 't': {
-		uint32_t temperature;
-		(void)temperature;
-		temperature = sys_ctr_get_mcu_temperature();
-		LOGIN_PRINT("temperature: %d\n", temperature);
-	}
-		break;
-
 	case 's': {
 		sys_ctr_stop_mcu();
 	}
@@ -632,7 +557,7 @@ int32_t shell_dbg(uint8_t* argv) {
 
 int32_t shell_ram(uint8_t* argv) {
 	extern uint32_t _start_ram;
-	extern uint32_t _estack;
+	extern uint32_t _end_ram;
 
 	char* str_start_addr = NULL;
 	char* str_stop_addr = NULL;
@@ -642,7 +567,7 @@ int32_t shell_ram(uint8_t* argv) {
 	uint8_t len = str_parser((char*)argv);
 
 	LOGIN_PRINT("RAM start: 0x%x\n", ((uint32_t)&_start_ram));
-	LOGIN_PRINT("RAM   end: 0x%x\n", ((uint32_t)&_estack));
+	LOGIN_PRINT("RAM   end: 0x%x\n", ((uint32_t)&_end_ram));
 
 	/* "ram x 0x1000 0xA000" */
 	switch (*(argv + 4)) {
@@ -656,7 +581,7 @@ int32_t shell_ram(uint8_t* argv) {
 			LOGIN_PRINT("start_addr: 0x%x\n", start_addr);
 			LOGIN_PRINT("stop_addr: 0x%x\n", stop_addr);
 
-			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_estack)) {
+			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_end_ram)) {
 
 				/* start dump ram */
 				LOGIN_PRINT("\n");
@@ -694,7 +619,7 @@ int32_t shell_ram(uint8_t* argv) {
 			LOGIN_PRINT("start_addr: 0x%x\n", start_addr);
 			LOGIN_PRINT("stop_addr: 0x%x\n", stop_addr);
 
-			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_estack)) {
+			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_end_ram)) {
 
 				/* start dump ram */
 				LOGIN_PRINT("\n");
@@ -731,7 +656,7 @@ int32_t shell_ram(uint8_t* argv) {
 			LOGIN_PRINT("start_addr: 0x%x\n", start_addr);
 			LOGIN_PRINT("stop_addr: 0x%x\n", stop_addr);
 
-			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_estack)) {
+			if ((uint32_t)start_addr >= ((uint32_t)&_start_ram) && (uint32_t)stop_addr <= ((uint32_t)&_end_ram)) {
 
 				/* start dump ram */
 				LOGIN_PRINT("\n");
@@ -902,35 +827,6 @@ int32_t shell_buzzer(uint8_t* argv) {
 		LOGIN_PRINT("3. \"beep 2\"                           : buzzer play tones three beeps \n");
 		LOGIN_PRINT("4. \"beep 3\"                           : buzzer play tones super mario bros \n");
 		LOGIN_PRINT("4. \"beep 4\"                           : buzzer play tones merry chrismast \n");
-		break;
-	}
-
-	return 0;
-}
-
-int32_t shell_modbus(uint8_t* argv) {
-	switch (*(argv + 7)) {
-	case 'r':
-		LOGIN_PRINT("Modbus polling all register: \n");
-		updateDataModbusDevice(&MB_ES35SW_TH_Sensor);
-		LOGIN_PRINT("--ES35-SW--\n");
-		for (uint16_t i = 0; i < MB_ES35SW_TH_Sensor.listRegAmount; i++) {
-			LOGIN_PRINT("regAddr[%d]: %d\t", i+1, MB_ES35SW_TH_Sensor.listRegDevice[i].regAddress);
-			LOGIN_PRINT("\trawValue: %d \n", MB_ES35SW_TH_Sensor.listRegDevice[i].regValue);
-		}
-
-		LOGIN_PRINT("\n--LHIO404--\n");
-		updateDataModbusDevice(&MB_LHIO404_IO_Device);
-		for (uint16_t i = 0; i < MB_LHIO404_IO_Device.listRegAmount; i++) {
-			LOGIN_PRINT("regAddr[%d]: %d\t", i+1, MB_LHIO404_IO_Device.listRegDevice[i].regAddress);
-			LOGIN_PRINT("\trawValue: %d \n", MB_LHIO404_IO_Device.listRegDevice[i].regValue);
-		}
-		LOGIN_PRINT("\nDone !\n");
-		break;
-
-	default:
-		LOGIN_PRINT("\n[HELP]\n");
-		LOGIN_PRINT("\nmodbus r\"            : read all register\n");
 		break;
 	}
 

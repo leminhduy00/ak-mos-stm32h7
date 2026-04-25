@@ -9,31 +9,31 @@
 # Utilitis define
 Print = @echo "~"
 
-# Name of build target ex: ak-base-kit-stm32l151-boot.bin
-NAME_MODULE = ak-base-kit-stm32l151-boot
+# Name of build target ex: ak-base-kit-stm32h743-boot.bin
+NAME_MODULE = ak-base-kit-stm32h743-boot
 PROJECT = $(NAME_MODULE)
 
-GCC_PATH		= $(HOME)/workspace/tools/gcc-arm-none-eabi-10.3-2021.10
-PROGRAMER_PATH		= $(HOME)/workspace/tools/STM32CubeProgrammer/bin
-OPENOCD_CFG_PATH	= /usr/local/share/openocd/scripts/board/stm32ldiscovery.cfg
+GCC_PATH		= /home/minhduy/st/tools
+PROGRAMER_PATH		= /home/minhduy/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin
 
 #Include sources file
-include sources/app/Makefile.mk
-include sources/common/Makefile.mk
-include sources/driver/Makefile.mk
+include sources/libraries/Makefile.mk
+include sources/platform/stm32h/Makefile.mk
 include sources/sys/Makefile.mk
-include sources/platform/stm32l/Makefile.mk
+include sources/driver/Makefile.mk
+include sources/common/Makefile.mk
+include sources/app/Makefile.mk
 
 #Boot start address
 BOOT_START_ADDR_VAL = 0x08000000
 
 # App start address, that need sync with declare in linker file and interrupt vector table.
-APP_START_ADDR_VAL = 0x08003000
+APP_START_ADDR_VAL = 0x08040000
 APP_ADDR_OPTION = -DAPP_START_ADDR=$(APP_START_ADDR_VAL)
 
 # Define console baudrate, that is used to configure UART.
-SYS_CONSOLE_BAUDRATE	= 115200
-CONSOLE_BAUDRATE_DEF	= -DSYS_CONSOLE_BAUDRATE=$(SYS_CONSOLE_BAUDRATE)
+SYS_CONSOLE_BAUDRATE = 115200
+CONSOLE_BAUDRATE_DEF = -DSYS_CONSOLE_BAUDRATE=$(SYS_CONSOLE_BAUDRATE)
 
 #|---------------------------------------------------------------------------------------------------|
 #| OPTIMIZE LEVELS                                                                                   |
@@ -58,7 +58,7 @@ APP_STACK_SIZE = 720
 # Warning compile option.
 WARNING_OPTION = -Werror -W -Wstack-usage=$(APP_STACK_SIZE)
 
-OBJECTS_DIR = build_$(NAME_MODULE)
+OBJECTS_DIR = build
 TARGET = $(OBJECTS_DIR)/$(NAME_MODULE).axf
 
 SOURCES		+=
@@ -69,17 +69,17 @@ SOURCES_CPP	+=
 SOURCES_CPP_	 = $(shell find $(SOURCES_CPP) -type f -printf "%f\n")
 OBJECTS		+= $(patsubst %.cpp, $(OBJECTS_DIR)/%.o, $(SOURCES_CPP_))
 
-LIBC		= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7-m/nofp/libc.a
-LIBM		= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7-m/nofp/libm.a
-LIBFPU		= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7-m/nofp/libg.a
-LIBRDPMON	= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7-m/nofp/librdpmon.a
-LIBSTDCPP_NANO	= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7-m/nofp/libstdc++_nano.a
+LIBC		= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7e-m+dp/hard/libc.a
+LIBM		= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7e-m+dp/hard/libm.a
+LIBFPU		= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7e-m+dp/hard/libg.a
+LIBRDPMON	= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7e-m+dp/hard/librdpmon.a
+LIBSTDCPP_NANO	= $(GCC_PATH)/arm-none-eabi/lib/thumb/v7e-m+dp/hard/libstdc++_nano.a
 
-LIBGCC		= $(GCC_PATH)/lib/gcc/arm-none-eabi/10.3.1/thumb/v7-m/nofp/libgcc.a
-LIBGCOV		= $(GCC_PATH)/lib/gcc/arm-none-eabi/10.3.1/thumb/v7-m/nofp/libgcov.a
+LIBGCC		= $(GCC_PATH)/lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+dp/hard/libgcc.a
+LIBGCOV		= $(GCC_PATH)/lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+dp/hard/libgcov.a
 
-LIB_PATH += -L$(GCC_PATH)/arm-none-eabi/lib/thumb/v7-m/nofp
-LIB_PATH += -L$(GCC_PATH)/lib/gcc/arm-none-eabi/10.3.1/thumb/v7-m/nofp
+LIB_PATH += -L$(GCC_PATH)/arm-none-eabi/lib/thumb/v7e-m+dp/hard
+LIB_PATH += -L$(GCC_PATH)/lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+dp/hard
 
 # The command for calling the compiler.
 CC		=	$(GCC_PATH)/bin/arm-none-eabi-gcc
@@ -95,8 +95,8 @@ ARM_SIZE	=	$(GCC_PATH)/bin/arm-none-eabi-size
 
 # Set the compiler CPU/FPU options.
 # https://launchpadlibrarian.net/177524521/readme.txt
-CPU = -mthumb -march=armv7-m
-FPU = -mfloat-abi=soft
+CPU = -mthumb -mcpu=cortex-m7
+FPU = -mfloat-abi=hard -mfpu=fpv5-d16
 
 # ASM compiler flags
 AFLAGS +=	$(CPU) 	\
@@ -119,9 +119,9 @@ GENERAL_FLAGS +=			\
 		$(RELEASE_OPTION)	\
 		$(LOG_AK_KERNEL_ENABLE)	\
 		$(APP_ADDR_OPTION)	\
-		-DUSE_STDPERIPH_DRIVER	\
-		-DSTM32L1XX_MD		\
-		-DSTM32L_PLATFORM_BOOT	\
+		-DUSE_HAL_DRIVER	\
+		-DSTM32H743xx		\
+		-DSTM32H_PLATFORM	\
 
 COMPILER_FLAGS +=			\
 		$(CPU)			\
@@ -132,6 +132,8 @@ COMPILER_FLAGS +=			\
 		-MD			\
 		-Wall			\
 		-c			\
+		-g			\
+		-gdwarf-2	\
 
 # C compiler flags
 CFLAGS +=	$(CPU)			\
