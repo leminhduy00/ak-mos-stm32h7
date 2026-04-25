@@ -1,4 +1,11 @@
+/*****************************************************************************/
+/* Application Includes
+ *****************************************************************************/
 #include "uart_boot.h"
+
+/*****************************************************************************/
+/* System Includes
+ *****************************************************************************/
 #include "sys_ctrl.h"
 #include "sys_io.h"
 
@@ -31,10 +38,10 @@ void set_uart_boot_cmd_handler(pf_uart_boot_cmd_handler handler) {
 uint32_t uart_boot_is_required() {
 	for (int i = 0; i < 300; i++) {
 		if (io_button_mode_read()) {
-			return 0;
+			return 1;
 		}
 	}
-	return 1;
+	return 0;
 }
 
 void uart_boot_write(uint8_t* data, uint8_t len) {
