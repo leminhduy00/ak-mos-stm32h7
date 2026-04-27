@@ -109,15 +109,6 @@ int main_app() {
 	sys_soft_reboot_counter++;
 
 	/******************************************************************************
-	* init active kernel
-	*******************************************************************************/
-	ENTRY_CRITICAL();
-	task_init();
-	task_create((task_t*)app_task_table);
-	task_polling_create((task_polling_t*)app_task_polling_table);
-	EXIT_CRITICAL();
-
-	/******************************************************************************
 	* init applications
 	*******************************************************************************/
 	/*********************
@@ -171,8 +162,9 @@ int main_app() {
 	flash_erase_sector(APP_FLASH_AK_DBG_FATAL_LOG_SECTOR);
 	flash_write(APP_FLASH_AK_DBG_FATAL_LOG_SECTOR, reinterpret_cast<uint8_t*>(&app_fatal_log), sizeof(fatal_log_t));
 
-
-	// EXIT_CRITICAL();
+	os_init();
+	os_task_create_list((task_t*)app_task_table, TASK_EOT_ID);
+	os_run();
 
 	/* start timer for application */
 	app_init_state_machine();
@@ -188,7 +180,10 @@ int main_app() {
 	*******************************************************************************/
 	sys_ctrl_shell_sw_to_nonblock();
 
-	return task_run();
+	while (1)
+	{
+
+	}
 }
 
 void task_polling_console() {

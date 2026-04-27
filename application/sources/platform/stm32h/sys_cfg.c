@@ -168,26 +168,12 @@ void sys_cfg_clock() {
 	}
 }
 
-void sys_cfg_tick() {
-	HAL_InitTick(IRQ_PRIO_SYS_SYSTEMSTICK);
-}
-
 void sys_cfg_console() {
 	ring_buffer_char_init(&ring_buffer_char_shell_send, ring_buffer_char_shell_send_buffer, RING_BUFFER_CHAR_SHELL_SEND_BUFFER_SIZE);
 
 	MX_USART1_UART_Init();
 
 	sys_ctrl_shell_sw_to_block();
-}
-
-void sys_cfg_svc() {
-	HAL_NVIC_SetPriority(SVCall_IRQn, IRQ_PRIO_SYS_SVC, 0);
-	HAL_NVIC_EnableIRQ(SVCall_IRQn);
-}
-
-void sys_cfg_pendsv() {
-	HAL_NVIC_SetPriority(PendSV_IRQn, IRQ_PRIO_SYS_PENDSV, 0);
-	HAL_NVIC_EnableIRQ(PendSV_IRQn);
 }
 
 void sys_cfg_update_info() {
@@ -296,57 +282,6 @@ void sys_ctrl_reset() {
 	NVIC_SystemReset();
 }
 
-void sys_ctrl_delay_us(volatile uint32_t count) {
-#if 0
-	volatile uint32_t delay_value = 0;
-	delay_value = count*delay_coeficient / 8;
-	while(delay_value--);
-#else
-	__IO uint32_t currentTicks = SysTick->VAL;
-	/* Number of ticks per millisecond */
-	const uint32_t tickPerMs = SysTick->LOAD + 1;
-	/* Number of ticks to count */
-	const uint32_t nbTicks = ((count - ((count > 0) ? 1 : 0)) * tickPerMs) / 1000;
-	/* Number of elapsed ticks */
-	uint32_t elapsedTicks = 0;
-	__IO uint32_t oldTicks = currentTicks;
-	do {
-		currentTicks = SysTick->VAL;
-		elapsedTicks += (oldTicks < currentTicks) ? tickPerMs + oldTicks - currentTicks :
-													oldTicks - currentTicks;
-		oldTicks = currentTicks;
-	} while (nbTicks > elapsedTicks);
-#endif
-}
-
-void sys_ctrl_delay_ms(volatile uint32_t count) {
-#if 0
-	volatile uint32_t current_time = 0;
-	volatile uint32_t current;
-	volatile int32_t start = sys_ctrl_millis();
-
-	while(current_time < count) {
-		current = sys_ctrl_millis();
-
-		if (current < start) {
-			current_time += ((uint32_t)0xFFFFFFFF - start) + current;
-		}
-		else {
-			current_time += current - start;
-		}
-
-		start = current;
-	}
-#else
-	if (count != 0) {
-		uint32_t start = sys_ctrl_millis();
-		do {
-			/* yield(); */
-		} while (sys_ctrl_millis() - start < count);
-	}
-#endif
-}
-
 void sys_ctr_sleep_wait_for_irq() {
 	HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 }
@@ -448,14 +383,3 @@ void sys_ctrl_get_firmware_info(firmware_header_t* header) {
 	header->bin_len = len_of_flash;
 }
 
-void task_irq_io_entry_trigger() {
-#if defined(AK_IO_IRQ_ANALYZER)
-	GPIO_ResetBits(LED_LIFE_IO_PORT, LED_LIFE_IO_PIN);
-#endif
-}
-
-void task_irq_io_exit_trigger() {
-#if defined(AK_IO_IRQ_ANALYZER)
-	GPIO_SetBits(LED_LIFE_IO_PORT, LED_LIFE_IO_PIN);
-#endif
-}

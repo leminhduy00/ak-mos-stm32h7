@@ -113,7 +113,7 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 	SYS_PRINT("start dump RAM to FLASH\n");
 	for (index = 0; index < ram_dump_num_64k_needed; index++) {
 		flash_erase_block_64k(APP_FLASH_DUMP_RAM_START_ADDR + (W25QXX_FLASH_BLOCK_64K_SIZE * index));
-		sys_ctrl_delay_us(100);
+		HAL_Delay(1);
 	}
 
 	index = 0;
@@ -122,7 +122,7 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 		index += DUMP_RAM_UNIT_SIZE;
 	}
 
-	sys_ctrl_delay_us(1000);
+	HAL_Delay(1);
 
 #if defined(RELEASE)
 	sys_ctrl_reset();
@@ -263,34 +263,10 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 
 		/* led notify FATAL */
 		led_life_on();
-		sys_ctrl_delay_us(200000);
+		HAL_Delay(200);
 		led_life_off();
-		sys_ctrl_delay_us(200000);
+		HAL_Delay(200);
 	}
-}
-
-void sys_dbg_func_stack_dump(uint32_t* args) {
-	/**
-	Stack frame contains:
-	r0, r1, r2, r3, r12, r14, the return address and xPSR
-	- Stacked R0	<-> args[0]
-	- Stacked R1	<-> args[1]
-	- Stacked R2	<-> args[2]
-	- Stacked R3	<-> args[3]
-	- Stacked R12	<-> args[4]
-	- Stacked LR	<-> args[5]
-	- Stacked PC	<-> args[6]
-	- Stacked xPSR	<-> args[7]
-	*/
-	(void)args;
-	SYS_PRINT("[st]R0\t0x%08X\n",		args[0]);
-	SYS_PRINT("[st]R1\t0x%08X\n",		args[1]);
-	SYS_PRINT("[st]R2\t0x%08X\n",		args[2]);
-	SYS_PRINT("[st]R3\t0x%08X\n",		args[3]);
-	SYS_PRINT("[st]R12\t0x%08X\n",	args[4]);
-	SYS_PRINT("[st]LR\t0x%08X\n",		args[5]);
-	SYS_PRINT("[st]PC\t0x%08X\n",		args[6]);
-	SYS_PRINT("[st]PSR\t0x%08X\n",	args[7]);
 }
 
 void sys_dbg_cpu_dump() {

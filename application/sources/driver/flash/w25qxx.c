@@ -11,7 +11,7 @@
 w25qxx_t w25qxx;
 
 #if (_W25QXX_USE_FREERTOS==1)
-#define	W25qxx_Delay(delay)		osDelay(delay)
+#define	W25qxx_Delay(delay)		os_task_delay(delay)
 #else
 #define	W25qxx_Delay(delay)		HAL_Delay(delay)
 #endif// ###################################################################################################################

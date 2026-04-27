@@ -48,7 +48,7 @@ IRQ_DEBUG_OPTION = -UAK_IO_IRQ_ANALYZER
 include sources/libraries/Makefile.mk
 include sources/platform/stm32h/Makefile.mk
 include sources/sys/Makefile.mk
-include sources/ak/Makefile.mk
+include sources/AK-mOS/Makefile
 include sources/driver/Makefile.mk
 include sources/common/Makefile.mk
 include sources/app/Makefile.mk

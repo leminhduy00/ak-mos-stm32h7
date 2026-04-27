@@ -15,7 +15,7 @@ extern "C"
 #include <stdint.h>
 
 typedef enum {
-	IRQ_PRIO_SYS_SYSTEMSTICK		= 0,
+	IRQ_PRIO_SYS_SYSTEMSTICK		= 1,
 	IRQ_PRIO_TIMER7_HAL_TIMEBASE	= 1,
 	IRQ_PRIO_UART1_CONSOLE			= 2,
 	IRQ_PRIO_SYS_SVC				= 14,

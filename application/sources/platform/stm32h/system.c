@@ -9,7 +9,6 @@
 
 #include "sys_cfg.h"
 #include "system.h"
-#include "platform.h"
 
 #include "usart.h"
 #include "tim.h"
@@ -19,9 +18,6 @@
 #include "sys_irq.h"
 #include "sys_boot.h"
 
-#include "ak.h"
-#include "message.h"
-#include "timer.h"
 
 #include "app.h"
 
@@ -275,30 +271,6 @@ sys_ctrl_delay(volatile uint32_t count)
 	"    bx      lr");
 }
 
-static uint32_t millis_current;
-
-uint32_t sys_ctrl_micros() {
-	uint32_t m = millis_current;
-	const uint32_t tms = SysTick->LOAD + 1;
-	__IO uint32_t u = tms - SysTick->VAL;
-
-	/* checks if the Systick counter flag is active or not */
-	if (((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == (SysTick_CTRL_COUNTFLAG_Msk))) {
-		m = millis_current;
-		u = tms - SysTick->VAL;
-	}
-
-	return (m * 1000 + (u * 1000) / tms);
-}
-
-uint32_t sys_ctrl_millis() {
-	volatile uint32_t ret;
-	ENTRY_CRITICAL();
-	ret = millis_current;
-	EXIT_CRITICAL();
-	return ret;
-}
-
 void _init() {
 	/* dummy */
 }
@@ -347,8 +319,6 @@ void reset_handler() {
 	HAL_Init();
 	sys_cfg_clock(); /* init system clock */
 	sys_cfg_svc(); /* setting svc exception priority */
-	sys_cfg_pendsv(); /* setting psv exception priority */
-	sys_cfg_tick(); /* system tick 1ms */
 	sys_cfg_console(); /* system console */
 
 	/* invoke all static constructors */
@@ -426,60 +396,6 @@ void usage_fault_handler() {
 	FATAL("SY", 0x05);
 }
 
-/*******************************************/
-/* cortex-M processor non-fault exceptions */
-/*******************************************/
-void systick_handler() {
-	static uint32_t div_counter = 0;
-
-	task_entry_interrupt();
-
-	/* increasing millis counter */
-	millis_current++;
-
-	timer_tick(1);
-
-	if (div_counter == 10) {
-		div_counter = 0;
-	}
-
-	switch (div_counter) {
-	case 0:
-		sys_irq_timer_10ms();
-		break;
-
-	default:
-		break;
-	}
-
-	div_counter++;
-
-	task_exit_interrupt();
-}
-
-void svc_exe(uint32_t* svc_args) {
-	volatile uint8_t svc_number;
-
-	sys_dbg_func_stack_dump(svc_args);
-	sys_dbg_cpu_dump();
-
-	svc_number = ((uint8_t*)svc_args[6])[-2];
-
-	switch (svc_number) {
-	case 0x01: {
-
-	}
-		break;
-
-	case 0x02: {
-
-	}
-		break;
-
-	default:
-		break;
-	}
-}
 
 /************************/
 /* external interrupts  */

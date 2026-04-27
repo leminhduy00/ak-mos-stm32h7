@@ -218,7 +218,7 @@ int32_t shell_help(uint8_t* argv) {
 
 int32_t shell_reboot(uint8_t* argv) {
 	(void)argv;
-	sys_ctrl_delay_ms(10);
+	HAL_Delay(10);
 	sys_ctrl_reset();
 	return 0;
 }
@@ -310,7 +310,7 @@ int32_t shell_fatal(uint8_t* argv) {
 				exe_time = t_msg.dbg_handler.stop_exe + (0xFFFFFFFF - t_msg.dbg_handler.start_exe);
 			}
 
-			sys_ctrl_delay_ms(5);
+			HAL_Delay(5);
 
 			LOGIN_PRINT("index: %d\ttask_id: %d\tmsg_type:0x%x\tref_count:%d\tsig: %d\t\twait_time: %d\texe_time: %d\n"\
 						, index										\

@@ -32,18 +32,6 @@ extern void sys_ctrl_independent_watchdog_reset();
 /* delay 3 cycles clock of system */
 extern void sys_ctrl_delay(volatile uint32_t count);
 
-/* system delay ms unit, this function using timer delay */
-extern void sys_ctrl_delay_ms(volatile uint32_t count);
-
-/* system delay us, uint this function using CPU delay*/
-extern void sys_ctrl_delay_us(volatile uint32_t count);
-
-/* get current 1ns system timer variable */
-extern uint32_t sys_ctrl_micros();
-
-/* get current 1ms system timer variable */
-extern uint32_t sys_ctrl_millis();
-
 /* get character of system console */
 extern uint8_t sys_ctrl_shell_get_char();
 
