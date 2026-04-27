@@ -10,8 +10,11 @@
 
 w25qxx_t w25qxx;
 
-#define W25qxx_Delay(delay) HAL_Delay(delay)
-// ###################################################################################################################
+#if (_W25QXX_USE_FREERTOS==1)
+#define	W25qxx_Delay(delay)		osDelay(delay)
+#else
+#define	W25qxx_Delay(delay)		HAL_Delay(delay)
+#endif// ###################################################################################################################
 uint8_t W25qxx_Spi(uint8_t Data)
 {
 	uint8_t ret;
@@ -123,7 +126,7 @@ void W25qxx_WaitForWriteEnd(void)
 bool W25qxx_Init(void)
 {
 	w25qxx.Lock = 1;
-	while (sys_ctrl_millis() < 100)
+	while (HAL_GetTick() < 100)
 		W25qxx_Delay(1);
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 	W25qxx_Delay(100);
@@ -245,7 +248,7 @@ void W25qxx_EraseChip(void)
 		W25qxx_Delay(1);
 	w25qxx.Lock = 1;
 #if (_W25QXX_DEBUG == 1)
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 	SYS_DBG("w25qxx EraseChip Begin...\r\n");
 #endif
 	W25qxx_WriteEnable();
@@ -254,7 +257,7 @@ void W25qxx_EraseChip(void)
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 	W25qxx_WaitForWriteEnd();
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx EraseBlock done after %d ms!\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx EraseBlock done after %d ms!\r\n", HAL_GetTick() - StartTime);
 #endif
 	W25qxx_Delay(10);
 	w25qxx.Lock = 0;
@@ -266,7 +269,7 @@ void W25qxx_EraseSector(uint32_t SectorAddr)
 		W25qxx_Delay(1);
 	w25qxx.Lock = 1;
 #if (_W25QXX_DEBUG == 1)
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 	SYS_DBG("w25qxx EraseSector %d Begin...\r\n", SectorAddr);
 #endif
 	W25qxx_WaitForWriteEnd();
@@ -282,7 +285,7 @@ void W25qxx_EraseSector(uint32_t SectorAddr)
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 	W25qxx_WaitForWriteEnd();
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx EraseSector done after %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx EraseSector done after %d ms\r\n", HAL_GetTick() - StartTime);
 #endif
 	W25qxx_Delay(1);
 	w25qxx.Lock = 0;
@@ -296,7 +299,7 @@ void W25qxx_EraseBlock(uint32_t BlockAddr)
 #if (_W25QXX_DEBUG == 1)
 	SYS_DBG("w25qxx EraseBlock %d Begin...\r\n", BlockAddr);
 	W25qxx_Delay(100);
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 #endif
 	W25qxx_WaitForWriteEnd();
 	BlockAddr = BlockAddr * w25qxx.SectorSize * 16;
@@ -311,7 +314,7 @@ void W25qxx_EraseBlock(uint32_t BlockAddr)
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 	W25qxx_WaitForWriteEnd();
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx EraseBlock done after %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx EraseBlock done after %d ms\r\n", HAL_GetTick() - StartTime);
 	W25qxx_Delay(100);
 #endif
 	W25qxx_Delay(1);
@@ -353,7 +356,7 @@ bool W25qxx_IsEmptyPage(uint32_t Page_Address, uint32_t OffsetInByte, uint32_t N
 #if (_W25QXX_DEBUG == 1)
 	SYS_DBG("w25qxx CheckPage:%d, Offset:%d, Bytes:%d begin...\r\n", Page_Address, OffsetInByte, NumByteToCheck_up_to_PageSize);
 	W25qxx_Delay(100);
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 #endif
 	uint8_t pBuffer[32];
 	uint32_t WorkAddress;
@@ -398,14 +401,14 @@ bool W25qxx_IsEmptyPage(uint32_t Page_Address, uint32_t OffsetInByte, uint32_t N
 		}
 	}
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx CheckPage is Empty in %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx CheckPage is Empty in %d ms\r\n", HAL_GetTick() - StartTime);
 	W25qxx_Delay(100);
 #endif
 	w25qxx.Lock = 0;
 	return true;
 NOT_EMPTY:
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx CheckPage is Not Empty in %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx CheckPage is Not Empty in %d ms\r\n", HAL_GetTick() - StartTime);
 	W25qxx_Delay(100);
 #endif
 	w25qxx.Lock = 0;
@@ -422,7 +425,7 @@ bool W25qxx_IsEmptySector(uint32_t Sector_Address, uint32_t OffsetInByte, uint32
 #if (_W25QXX_DEBUG == 1)
 	SYS_DBG("w25qxx CheckSector:%d, Offset:%d, Bytes:%d begin...\r\n", Sector_Address, OffsetInByte, NumByteToCheck_up_to_SectorSize);
 	W25qxx_Delay(100);
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 #endif
 	uint8_t pBuffer[32];
 	uint32_t WorkAddress;
@@ -467,14 +470,14 @@ bool W25qxx_IsEmptySector(uint32_t Sector_Address, uint32_t OffsetInByte, uint32
 		}
 	}
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx CheckSector is Empty in %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx CheckSector is Empty in %d ms\r\n", HAL_GetTick() - StartTime);
 	W25qxx_Delay(100);
 #endif
 	w25qxx.Lock = 0;
 	return true;
 NOT_EMPTY:
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx CheckSector is Not Empty in %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx CheckSector is Not Empty in %d ms\r\n", HAL_GetTick() - StartTime);
 	W25qxx_Delay(100);
 #endif
 	w25qxx.Lock = 0;
@@ -491,7 +494,7 @@ bool W25qxx_IsEmptyBlock(uint32_t Block_Address, uint32_t OffsetInByte, uint32_t
 #if (_W25QXX_DEBUG == 1)
 	SYS_DBG("w25qxx CheckBlock:%d, Offset:%d, Bytes:%d begin...\r\n", Block_Address, OffsetInByte, NumByteToCheck_up_to_BlockSize);
 	W25qxx_Delay(100);
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 #endif
 	uint8_t pBuffer[32];
 	uint32_t WorkAddress;
@@ -536,14 +539,14 @@ bool W25qxx_IsEmptyBlock(uint32_t Block_Address, uint32_t OffsetInByte, uint32_t
 		}
 	}
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx CheckBlock is Empty in %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx CheckBlock is Empty in %d ms\r\n", HAL_GetTick() - StartTime);
 	W25qxx_Delay(100);
 #endif
 	w25qxx.Lock = 0;
 	return true;
 NOT_EMPTY:
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx CheckBlock is Not Empty in %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx CheckBlock is Not Empty in %d ms\r\n", HAL_GetTick() - StartTime);
 	W25qxx_Delay(100);
 #endif
 	w25qxx.Lock = 0;
@@ -556,7 +559,7 @@ void W25qxx_WriteByte(uint8_t pBuffer, uint32_t WriteAddr_inBytes)
 		W25qxx_Delay(1);
 	w25qxx.Lock = 1;
 #if (_W25QXX_DEBUG == 1)
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 	SYS_DBG("w25qxx WriteByte 0x%02X at address %d begin...", pBuffer, WriteAddr_inBytes);
 #endif
 	W25qxx_WaitForWriteEnd();
@@ -572,7 +575,7 @@ void W25qxx_WriteByte(uint8_t pBuffer, uint32_t WriteAddr_inBytes)
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 	W25qxx_WaitForWriteEnd();
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx WriteByte done after %d ms\r\n", sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx WriteByte done after %d ms\r\n", HAL_GetTick() - StartTime);
 #endif
 	w25qxx.Lock = 0;
 }
@@ -589,7 +592,7 @@ void W25qxx_WritePage(uint8_t* pBuffer, uint32_t Page_Address, uint32_t OffsetIn
 #if (_W25QXX_DEBUG == 1)
 	SYS_DBG("w25qxx WritePage:%d, Offset:%d ,Writes %d Bytes, begin...\r\n", Page_Address, OffsetInByte, NumByteToWrite_up_to_PageSize);
 	W25qxx_Delay(100);
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 #endif
 	W25qxx_WaitForWriteEnd();
 	W25qxx_WriteEnable();
@@ -605,7 +608,7 @@ void W25qxx_WritePage(uint8_t* pBuffer, uint32_t Page_Address, uint32_t OffsetIn
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 	W25qxx_WaitForWriteEnd();
 #if (_W25QXX_DEBUG == 1)
-	StartTime = sys_ctrl_millis() - StartTime;
+	StartTime = HAL_GetTick() - StartTime;
 	for (uint32_t i = 0; i < NumByteToWrite_up_to_PageSize; i++)
 	{
 		if ((i % 8 == 0) && (i > 2))
@@ -707,7 +710,7 @@ void W25qxx_ReadByte(uint8_t* pBuffer, uint32_t Bytes_Address)
 		W25qxx_Delay(1);
 	w25qxx.Lock = 1;
 #if (_W25QXX_DEBUG == 1)
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 	SYS_DBG("w25qxx ReadByte at address %d begin...\r\n", Bytes_Address);
 #endif
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_RESET);
@@ -721,7 +724,7 @@ void W25qxx_ReadByte(uint8_t* pBuffer, uint32_t Bytes_Address)
 	*pBuffer = W25qxx_Spi(W25QXX_DUMMY_BYTE);
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 #if (_W25QXX_DEBUG == 1)
-	SYS_DBG("w25qxx ReadByte 0x%02X done after %d ms\r\n", *pBuffer, sys_ctrl_millis() - StartTime);
+	SYS_DBG("w25qxx ReadByte 0x%02X done after %d ms\r\n", *pBuffer, HAL_GetTick() - StartTime);
 #endif
 	w25qxx.Lock = 0;
 }
@@ -732,7 +735,7 @@ void W25qxx_ReadBytes(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRea
 		W25qxx_Delay(1);
 	w25qxx.Lock = 1;
 #if (_W25QXX_DEBUG == 1)
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 	SYS_DBG("w25qxx ReadBytes at Address:%d, %d Bytes  begin...\r\n", ReadAddr, NumByteToRead);
 #endif
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_RESET);
@@ -746,7 +749,7 @@ void W25qxx_ReadBytes(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRea
 	HAL_SPI_Receive(&_W25QXX_SPI, pBuffer, NumByteToRead, 2000);
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 #if (_W25QXX_DEBUG == 1)
-	StartTime = sys_ctrl_millis() - StartTime;
+	StartTime = HAL_GetTick() - StartTime;
 	for (uint32_t i = 0; i < NumByteToRead; i++)
 	{
 		if ((i % 8 == 0) && (i > 2))
@@ -776,7 +779,7 @@ void W25qxx_ReadPage(uint8_t* pBuffer, uint32_t Page_Address, uint32_t OffsetInB
 #if (_W25QXX_DEBUG == 1)
 	SYS_DBG("w25qxx ReadPage:%d, Offset:%d ,Read %d Bytes, begin...\r\n", Page_Address, OffsetInByte, NumByteToRead_up_to_PageSize);
 	W25qxx_Delay(100);
-	uint32_t StartTime = sys_ctrl_millis();
+	uint32_t StartTime = HAL_GetTick();
 #endif
 	Page_Address = Page_Address * w25qxx.PageSize + OffsetInByte;
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_RESET);
@@ -790,7 +793,7 @@ void W25qxx_ReadPage(uint8_t* pBuffer, uint32_t Page_Address, uint32_t OffsetInB
 	HAL_SPI_Receive(&_W25QXX_SPI, pBuffer, NumByteToRead_up_to_PageSize, 100);
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO, _W25QXX_CS_PIN, GPIO_PIN_SET);
 #if (_W25QXX_DEBUG == 1)
-	StartTime = sys_ctrl_millis() - StartTime;
+	StartTime = HAL_GetTick() - StartTime;
 	for (uint32_t i = 0; i < NumByteToRead_up_to_PageSize; i++)
 	{
 		if ((i % 8 == 0) && (i > 2))

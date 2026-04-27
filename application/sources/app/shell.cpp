@@ -288,7 +288,6 @@ int32_t shell_fatal(uint8_t* argv) {
 		for (uint32_t index = 0; index < (LOG_QUEUE_OBJECT_SIZE / sizeof(ak_msg_t)); index++) {
 			/* reset watchdog */
 			sys_ctrl_independent_watchdog_reset();
-			sys_ctrl_soft_watchdog_reset();
 
 			flash_read(flash_sys_log_address, (uint8_t*)&t_msg, sizeof(ak_msg_t));
 			flash_sys_log_address += sizeof(ak_msg_t);
@@ -330,7 +329,6 @@ int32_t shell_fatal(uint8_t* argv) {
 		for (uint32_t index = 0; index < (LOG_QUEUE_IRQ_SIZE / sizeof(exception_info_t)); index++) {
 			/* reset watchdog */
 			sys_ctrl_independent_watchdog_reset();
-			sys_ctrl_soft_watchdog_reset();
 
 			flash_read(flash_irq_log_address, (uint8_t*)&t_exception_info, sizeof(exception_info_t));
 			flash_irq_log_address += sizeof(exception_info_t);
@@ -360,7 +358,6 @@ int32_t shell_fatal(uint8_t* argv) {
 				if (!(i % colum)) {
 					/* reset watchdog */
 					sys_ctrl_independent_watchdog_reset();
-					sys_ctrl_soft_watchdog_reset();
 
 					LOGIN_PRINT("\n0x%x\t" , (uint32_t)&_start_ram + i);
 				}
@@ -418,7 +415,6 @@ int32_t shell_flash(uint8_t* argv) {
 				if (!(i%16)) {
 					/* reset watchdog */
 					sys_ctrl_independent_watchdog_reset();
-					sys_ctrl_soft_watchdog_reset();
 
 					LOGIN_PRINT("\n0x%x\t" ,i);
 				}
@@ -446,7 +442,6 @@ int32_t shell_flash(uint8_t* argv) {
 				if (!(i%16)) {
 					/* reset watchdog */
 					sys_ctrl_independent_watchdog_reset();
-					sys_ctrl_soft_watchdog_reset();
 
 					LOGIN_PRINT("\n0x%x\t" ,i);
 				}
@@ -590,7 +585,6 @@ int32_t shell_ram(uint8_t* argv) {
 					if (!((uint32_t)addr_index % 4)) {
 						/* reset watchdog */
 						sys_ctrl_independent_watchdog_reset();
-						sys_ctrl_soft_watchdog_reset();
 
 						LOGIN_PRINT("\n0x%x\t", addr_index);
 					}
@@ -628,7 +622,6 @@ int32_t shell_ram(uint8_t* argv) {
 					if (!((uint32_t)addr_index % 4)) {
 						/* reset watchdog */
 						sys_ctrl_independent_watchdog_reset();
-						sys_ctrl_soft_watchdog_reset();
 
 						LOGIN_PRINT("\n0x%x\t", addr_index);
 					}
@@ -665,7 +658,6 @@ int32_t shell_ram(uint8_t* argv) {
 					if (!((uint32_t)addr_index % 4)) {
 						/* reset watchdog */
 						sys_ctrl_independent_watchdog_reset();
-						sys_ctrl_soft_watchdog_reset();
 
 						LOGIN_PRINT("\n0x%x\t", addr_index);
 					}

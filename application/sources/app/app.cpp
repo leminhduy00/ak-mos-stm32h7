@@ -40,6 +40,7 @@
 #include "flash.h"
 #include "led.h"
 #include "buzzer.h"
+#include "tim.h"
 /*****************************************************************************/
 /* Application Includes
  *****************************************************************************/
@@ -123,10 +124,10 @@ int main_app() {
 	* hardware configure *
 	**********************/
 	/* init watch dog timer */
-	sys_ctrl_independent_watchdog_init();	/* 32s */
-	sys_ctrl_soft_watchdog_init(200);		/* 20s */
-
-
+	sys_ctrl_independent_watchdog_init();	/* 30s */
+	/* HAL TimeBases init */
+	MX_TIM7_Init();
+	
 	/* flash io init */
 	flash_ctrl_init();
 

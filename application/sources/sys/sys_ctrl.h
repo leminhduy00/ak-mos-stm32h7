@@ -29,13 +29,6 @@ extern void sys_ctrl_reset();
 extern void sys_ctrl_independent_watchdog_init();
 extern void sys_ctrl_independent_watchdog_reset();
 
-/* software watchdog interface */
-extern void sys_ctrl_soft_watchdog_init(uint32_t);
-extern void sys_ctrl_soft_watchdog_reset();
-extern void sys_ctrl_soft_watchdog_enable();
-extern void sys_ctrl_soft_watchdog_disable();
-extern void sys_ctrl_soft_watchdog_increase_counter();
-
 /* delay 3 cycles clock of system */
 extern void sys_ctrl_delay(volatile uint32_t count);
 
