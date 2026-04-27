@@ -94,7 +94,7 @@ void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 19999;
+  htim7.Init.Prescaler = 199;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim7.Init.Period = 999;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -141,7 +141,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     __HAL_RCC_TIM7_CLK_ENABLE();
 
     /* TIM7 interrupt Init */
-    HAL_NVIC_SetPriority(TIM7_IRQn, IRQ_PRIO_TIMER7_SOFT_WATCHDOG, 0);
+    HAL_NVIC_SetPriority(TIM7_IRQn, IRQ_PRIO_TIMER7_HAL_TIMEBASE, 0);
     HAL_NVIC_EnableIRQ(TIM7_IRQn);
   /* USER CODE BEGIN TIM7_MspInit 1 */
   /* USER CODE END TIM7_MspInit 1 */
@@ -209,5 +209,12 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM7)
+	{
+		HAL_IncTick();
+	}
+}
 /* USER CODE END 1 */
 

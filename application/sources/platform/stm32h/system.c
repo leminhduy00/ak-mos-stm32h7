@@ -511,11 +511,6 @@ void uart1_irq() {
 }
 
 void timer7_irq() {
-	if (__HAL_TIM_GET_IT_SOURCE(&htim7, TIM_IT_UPDATE)
-		&& __HAL_TIM_GET_FLAG(&htim7, TIM_FLAG_UPDATE))
-	{
-		sys_ctrl_soft_watchdog_increase_counter();
-		__HAL_TIM_CLEAR_FLAG(&htim7, TIM_FLAG_UPDATE);
-	}
+	HAL_TIM_IRQHandler(&htim7);
 }
 

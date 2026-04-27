@@ -15,14 +15,11 @@ extern "C"
 #include <stdint.h>
 
 typedef enum {
-	IRQ_PRIO_TIMER7_SOFT_WATCHDOG	= 0,
-	IRQ_PRIO_SYS_SYSTEMSTICK		= 1,
-	IRQ_PRIO_SYS_TIMER_1US			= 1,
+	IRQ_PRIO_SYS_SYSTEMSTICK		= 0,
+	IRQ_PRIO_TIMER7_HAL_TIMEBASE	= 1,
 	IRQ_PRIO_UART1_CONSOLE			= 2,
-	IRQ_PRIO_UART2_IO				= 3,
 	IRQ_PRIO_SYS_SVC				= 14,
 	IRQ_PRIO_SYS_PENDSV				= 15,
-	IRQ_PRIO_TIMER3_MODBUS			= 2,
 } system_irq_prio_e;
 
 typedef struct {

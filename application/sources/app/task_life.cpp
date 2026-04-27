@@ -18,7 +18,6 @@ void task_life(ak_msg_t* msg) {
 	case AC_LIFE_SYSTEM_CHECK:
 		/* reset watchdog */
 		sys_ctrl_independent_watchdog_reset();
-		sys_ctrl_soft_watchdog_reset();
 
 #if defined(AK_IO_IRQ_ANALYZER)
 #else

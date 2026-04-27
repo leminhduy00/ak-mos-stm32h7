@@ -131,7 +131,6 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 	while(1) {
 		/* reset watchdog */
 		sys_ctrl_independent_watchdog_reset();
-		sys_ctrl_soft_watchdog_reset();
 
 		/* FATAL debug option */
 		rev_c = sys_ctrl_shell_get_char();
@@ -150,7 +149,6 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 					if (!(i % 8)) {
 						/* reset watchdog */
 						sys_ctrl_independent_watchdog_reset();
-						sys_ctrl_soft_watchdog_reset();
 
 						SYS_PRINT("\n0x%x\t" , (uint32_t)&_start_ram + i);
 					}
@@ -168,7 +166,6 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 				for (uint32_t index = 0; index < (LOG_QUEUE_IRQ_SIZE / sizeof(exception_info_t)); index++) {
 					/* reset watchdog */
 					sys_ctrl_independent_watchdog_reset();
-					sys_ctrl_soft_watchdog_reset();
 
 					flash_read(flash_irq_log_address, (uint8_t*)&t_exception_info, sizeof(exception_info_t));
 					flash_irq_log_address += sizeof(exception_info_t);
@@ -188,7 +185,6 @@ void sys_dbg_fatal(const int8_t* s, uint8_t c) {
 				for (uint32_t index = 0; index < (LOG_QUEUE_OBJECT_SIZE / sizeof(ak_msg_t)); index++) {
 					/* reset watchdog */
 					sys_ctrl_independent_watchdog_reset();
-					sys_ctrl_soft_watchdog_reset();
 
 					flash_read(flash_sys_log_address, (uint8_t*)&t_msg, sizeof(ak_msg_t));
 					flash_sys_log_address += sizeof(ak_msg_t);

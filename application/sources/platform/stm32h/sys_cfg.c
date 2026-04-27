@@ -347,16 +347,6 @@ void sys_ctrl_delay_ms(volatile uint32_t count) {
 #endif
 }
 
-uint32_t HAL_GetTick(void)
-{
-	return sys_ctrl_millis();
-}
-
-void HAL_Delay(uint32_t Delay)
-{
-	sys_ctrl_delay_ms(Delay);
-}
-
 void sys_ctr_sleep_wait_for_irq() {
 	HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 }
@@ -438,41 +428,6 @@ void sys_ctrl_independent_watchdog_reset() {
 	ENTRY_CRITICAL();
 	iwdg_feed();
 	EXIT_CRITICAL();
-}
-
-static uint32_t sys_ctrl_soft_counter = 0;
-static uint32_t sys_ctrl_soft_time_out;
-
-void sys_ctrl_soft_watchdog_init(uint32_t time_out) {
-	sys_ctrl_soft_time_out = time_out;
-
-	MX_TIM7_Init();
-}
-
-void sys_ctrl_soft_watchdog_reset() {
-	ENTRY_CRITICAL();
-	sys_ctrl_soft_counter = 0;
-	EXIT_CRITICAL();
-}
-
-void sys_ctrl_soft_watchdog_enable() {
-	ENTRY_CRITICAL();
-	HAL_TIM_Base_Start_IT(&htim7);
-	EXIT_CRITICAL();
-}
-
-void sys_ctrl_soft_watchdog_disable() {
-	ENTRY_CRITICAL();
-	HAL_TIM_Base_Stop_IT(&htim7);
-	EXIT_CRITICAL();
-}
-
-void sys_ctrl_soft_watchdog_increase_counter() {
-	sys_ctrl_soft_counter++;
-	if (sys_ctrl_soft_counter >= sys_ctrl_soft_time_out) {
-		HAL_TIM_Base_Stop_IT(&htim7);
-		FATAL("SWDG", 0x01);
-	}
 }
 
 void sys_ctrl_get_firmware_info(firmware_header_t* header) {
